@@ -1,0 +1,21 @@
+x = 0;
+y = 2;
+
+if (x == 0) {
+   print("zero");
+} else if (x == 1) {
+    print("one");
+} else if (x == 2) {
+    print("two");
+} else {
+    print("More");
+}
+
+i = 0;
+while i < 10 {
+    print(i);
+    i = i + 1;
+}
+
+sum = x + y;
+print(x, y, sum);
