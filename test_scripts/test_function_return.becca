@@ -1,0 +1,24 @@
+
+def join(x, y, z, spacy) {
+    xString = string(x);
+    yString = string(y);
+    zString = string(z);
+    if (spacy) {
+        return xString + " " + yString + " " + zString;
+    } else {
+        return xString + "-" + yString + "-" + zString;
+    }
+}
+
+
+def getMessage(a) {
+    x = "X";
+    y = 1;
+    z = true;
+    joined = join(x, y, z, true);
+    print(joined);
+    other = join(x, y, z, false);
+    print(other);
+}
+
+getMessage(0);

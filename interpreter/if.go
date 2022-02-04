@@ -25,7 +25,6 @@ func (interpreter *Interpreter) doIf(tree *parser.Token) (*BeccaValue, error) {
 		} else {
 			return interpreter.Evaluate(child)
 		}
-
 	}
 	return Null(), nil
 }

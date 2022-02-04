@@ -30,6 +30,8 @@ func NewBeccaLanguage() *LanguageSpecification {
 	spec.DefineEmpty(",")
 	spec.DefineBlock("{", "}")
 	spec.DefineEmpty("else")
+	spec.DefineValue("true")
+	spec.DefineValue("false")
 	ifStd := func(token *Token, parser *Parser) (*Token, common.Exception) {
 		expression, err := parser.Expression(0)
 		if err != nil {
@@ -119,6 +121,17 @@ func NewBeccaLanguage() *LanguageSpecification {
 			return nil, err
 		}
 		token.Children = append(token.Children, expression)
+		// Hack, something is wonky here
+		next, err := parser.Lexer.Peek()
+		if err != nil {
+			return nil, err
+		}
+		if parser.Lexer.IsStatementTerminator(next) {
+			_, err = parser.Lexer.Next()
+			if err != nil {
+				return nil, err
+			}
+		}
 		return token, nil
 	}
 
@@ -189,7 +202,6 @@ func NewBeccaLanguage() *LanguageSpecification {
 	spec.Define("(", 90, 0, nil, openParensLed, nil)
 
 	defStd := func(token *Token, parser *Parser) (*Token, common.Exception) {
-		fmt.Printf("Parsing function definition\n")
 		token.Symbol = FunctionDefinition
 		functionName, err := parser.Lexer.Next()
 		if err != nil {
@@ -226,6 +238,10 @@ func NewBeccaLanguage() *LanguageSpecification {
 					break
 				}
 				_, err = parser.Lexer.Next()
+				if err != nil {
+					return nil, err
+				}
+				next, err = parser.Lexer.Next()
 				if err != nil {
 					return nil, err
 				}

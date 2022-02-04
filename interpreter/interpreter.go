@@ -8,16 +8,7 @@ import (
 	"github.com/nicholasbailey/becca/parser"
 )
 
-type BeccaType string
-
-const (
-	TString   BeccaType = "string"
-	TInt      BeccaType = "int"
-	TBool     BeccaType = "bool"
-	TFloat    BeccaType = "float"
-	TNull     BeccaType = "null"
-	TFunction BeccaType = "function"
-)
+// TODO - There are a lot of magic strings here
 
 type BeccaValue struct {
 	Type               BeccaType
@@ -36,19 +27,6 @@ type Scope map[string]*BeccaValue
 
 func NewScope() Scope {
 	return map[string]*BeccaValue{}
-}
-
-type CallStackFrame struct {
-	Scope        Scope
-	FunctionName parser.Symbol
-}
-
-func NewCallStackFrame(name parser.Symbol) *CallStackFrame {
-	scope := NewScope()
-	return &CallStackFrame{
-		Scope:        scope,
-		FunctionName: name,
-	}
 }
 
 type BuiltInFunction func(values []*BeccaValue) (*BeccaValue, common.Exception)
@@ -144,16 +122,27 @@ func (interpreter *Interpreter) Evaluate(tree *parser.Token) (*BeccaValue, commo
 		return interpreter.callFunction(tree)
 	case parser.Block:
 		var result *BeccaValue
+		var err common.Exception
 		for _, child := range tree.Children {
-			result, err := interpreter.Evaluate(child)
+			result, err = interpreter.Evaluate(child)
 			if err != nil {
 				return nil, err
 			}
-			if child.Symbol == "return" {
-				return result, nil
-			}
 		}
 		return result, nil
+	case "return":
+		stackFrame := interpreter.CallStack.Peek()
+		if stackFrame.FunctionName == "global" {
+			return nil, common.NewException(common.SyntaxError, "illegal return in global scope", tree.Line, tree.Col)
+		}
+		child := tree.Children[0]
+		value, err := interpreter.Evaluate(child)
+		// TODO - stack handle errors
+		if err != nil {
+			return nil, err
+		}
+		stackFrame.ReturnValue = value
+		return value, nil
 	case "if":
 		return interpreter.doIf(tree)
 	}
@@ -186,7 +175,11 @@ func NewInterpreter() *Interpreter {
 		BuiltIns:  map[string]BuiltInFunction{},
 		CallStack: *NewCallStack(),
 	}
-	interpreter.CallStack.Push(NewCallStackFrame("global"))
+	globalFrame := NewCallStackFrame("global")
+	globalFrame.Scope["true"] = True()
+	globalFrame.Scope["false"] = False()
+	interpreter.CallStack.Push(globalFrame)
 	interpreter.BuiltIns["print"] = print
+	interpreter.BuiltIns["string"] = String
 	return interpreter
 }

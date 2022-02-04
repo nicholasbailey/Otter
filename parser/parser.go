@@ -34,6 +34,7 @@ func (parser *Parser) Block() (*Token, error) {
 }
 
 func (parser *Parser) Statement() (*Token, error) {
+
 	tok, err := parser.Lexer.Peek()
 	if err != nil {
 		return nil, err
@@ -50,10 +51,8 @@ func (parser *Parser) Statement() (*Token, error) {
 		return nil, err
 	}
 	terminator, err := parser.Lexer.Next()
-	// TODO - unpanic this
 	if !parser.Lexer.IsStatementTerminator(terminator) {
-
-		panic(fmt.Errorf("syntaxerror: unterminated statement with %v at line %v, col %v", terminator.Value, terminator.Line, terminator.Col))
+		return nil, common.NewException(common.SyntaxError, fmt.Sprintf("unterminated statement with %v", terminator.Value), terminator.Line, terminator.Col)
 	}
 	if err != nil {
 		return nil, err
@@ -89,7 +88,7 @@ func (parser *Parser) Expression(rightBindingPower int) (*Token, common.Exceptio
 		return nil, err
 	}
 	if t.Nud == nil {
-		return nil, fmt.Errorf("%v is not a valid prefix symbol", t.Symbol)
+		return nil, common.NewException(common.SyntaxError, fmt.Sprintf("%v is not a valid prefix symbol", t.Value), t.Line, t.Col)
 	}
 	left, err = t.Nud(t, parser)
 	if err != nil {

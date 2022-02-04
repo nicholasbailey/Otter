@@ -1,6 +1,24 @@
 package interpreter
 
-import "container/list"
+import (
+	"container/list"
+
+	"github.com/nicholasbailey/becca/parser"
+)
+
+type CallStackFrame struct {
+	Scope        Scope
+	FunctionName parser.Symbol
+	ReturnValue  *BeccaValue
+}
+
+func NewCallStackFrame(name parser.Symbol) *CallStackFrame {
+	scope := NewScope()
+	return &CallStackFrame{
+		Scope:        scope,
+		FunctionName: name,
+	}
+}
 
 type CallStack struct {
 	list *list.List
@@ -38,22 +56,13 @@ func (s *CallStack) Peek() *CallStackFrame {
 }
 
 func (s *CallStack) ResolveVariable(variableName string) (*BeccaValue, bool) {
-	back := s.list.Back()
-	if back == nil {
-		return nil, false
-	}
-	stackFrame := back.Value.(*CallStackFrame)
-	value, found := stackFrame.Scope[variableName]
-	if found {
-		return value, true
-	}
-	for prev := back.Prev(); prev != nil; {
-		stackFrame := back.Value.(*CallStackFrame)
+
+	for e := s.list.Back(); e != nil; e = e.Prev() {
+		stackFrame := e.Value.(*CallStackFrame)
 		value, found := stackFrame.Scope[variableName]
 		if found {
 			return value, true
 		}
-		back = prev
 	}
 	return nil, false
 }

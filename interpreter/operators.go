@@ -192,7 +192,7 @@ func (interpreter *Interpreter) doAddition(tree *parser.Token) (*BeccaValue, err
 	if leftValue.Type == TString && rightValue.Type == TString {
 		newValue := leftValue.Value.(string) + rightValue.Value.(string)
 		return &BeccaValue{
-			Type:  TFloat,
+			Type:  TString,
 			Value: newValue,
 		}, nil
 	}

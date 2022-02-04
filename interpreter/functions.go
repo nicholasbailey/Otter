@@ -40,12 +40,30 @@ func (interpreter *Interpreter) callUserDefinedFunction(fn *BeccaValue, argument
 	}
 	interpreter.CallStack.Push(stackFrame)
 	block := fn.FunctionDefinition.Children[2]
-	returnValue, err := interpreter.Evaluate(block)
+	// TODO - more checks here
+	var err error
+	for _, child := range block.Children {
+		_, err = interpreter.Evaluate(child)
+		if err != nil {
+			break
+		}
+		stackFrame := interpreter.CallStack.Peek()
+		// TODO handle nil stack frame
+
+		if stackFrame.ReturnValue != nil {
+			break
+		}
+	}
+
+	frame := interpreter.CallStack.Pop()
 	if err != nil {
 		return nil, err
 	}
-	interpreter.CallStack.Pop()
-	return returnValue, nil
+	// TODO this is gross, decide on return semantics
+	if frame.ReturnValue == nil {
+		frame.ReturnValue = Null()
+	}
+	return frame.ReturnValue, nil
 }
 
 func (interpreter *Interpreter) callFunction(tree *parser.Token) (*BeccaValue, error) {
