@@ -17,6 +17,7 @@ func NewLanguage() *LanguageSpecification {
 		symbols:              symbols,
 		statementTerminators: []Symbol{},
 		blockDelimiters:      map[Symbol]Symbol{},
+		commentStarts:        []Symbol{},
 	}
 	language.DefineValue(Name)
 	language.DefineValue(IntLiteral)
@@ -35,6 +36,20 @@ type LanguageSpecification struct {
 	symbols              map[Symbol]*Token
 	statementTerminators []Symbol
 	blockDelimiters      map[Symbol]Symbol
+	commentStarts        []Symbol
+}
+
+func (spec *LanguageSpecification) DefineComment(symbol Symbol) {
+	spec.commentStarts = append(spec.commentStarts, symbol)
+}
+
+func (spec *LanguageSpecification) IsCommentStart(symbol Symbol) bool {
+	for _, start := range spec.commentStarts {
+		if symbol == start {
+			return true
+		}
+	}
+	return false
 }
 
 func (spec *LanguageSpecification) IsAnyBlockEnd(symbol Symbol) bool {

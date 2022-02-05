@@ -8,6 +8,7 @@ import (
 
 func NewBeccaLanguage() *LanguageSpecification {
 	spec := NewLanguage()
+	spec.DefineComment("//")
 	spec.DefineQuotes('"', '"', StringLiteral)
 	spec.DefineQuotes('\'', '\'', StringLiteral)
 	spec.DefineParens("(", ")")
@@ -32,6 +33,28 @@ func NewBeccaLanguage() *LanguageSpecification {
 	spec.DefineEmpty("else")
 	spec.DefineValue("true")
 	spec.DefineValue("false")
+
+	dotLed := func(token *Token, parser *Parser, left *Token) (*Token, common.Exception) {
+		next, err := parser.Lexer.Peek()
+		if err != nil {
+			return nil, err
+		}
+		if next.Symbol != Name {
+			return nil, common.NewException(common.SyntaxError, "invalid property access", token.Line, token.Col)
+		}
+
+		token.Symbol = Access
+		token.Children = append(token.Children, left)
+		exp, err := parser.Expression(0)
+		if err != nil {
+			return nil, err
+		}
+		token.Children = append(token.Children, exp)
+		return token, nil
+	}
+
+	spec.Define(".", 100, 2, nil, dotLed, nil)
+
 	ifStd := func(token *Token, parser *Parser) (*Token, common.Exception) {
 		expression, err := parser.Expression(0)
 		if err != nil {

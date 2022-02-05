@@ -7,10 +7,14 @@ type Exception error
 type ExceptionType string
 
 const (
+	// Represents an issue with syntax. Generally
+	// thrown by the parser, but
 	SyntaxError       ExceptionType = "SyntaxError"
-	DivideByZeroError ExceptionType = "DivideByZero"
+	DivideByZeroError ExceptionType = "DivideByZeroError"
 	TypeError         ExceptionType = "TypeError"
 	NameError         ExceptionType = "NameError"
+	InternalError     ExceptionType = "InternalError"
+	MethodError       ExceptionType = "MethodError"
 )
 
 func NewException(

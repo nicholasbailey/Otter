@@ -15,13 +15,13 @@ func (interpreter *Interpreter) doWhile(tree *parser.Token) (*BeccaValue, error)
 	}
 	expression := tree.Children[0]
 	block := tree.Children[1]
-	retVal := Null()
+	retVal := interpreter.NewNull()
 	for {
 		expressionRes, err := interpreter.Evaluate(expression)
 		if err != nil {
 			return nil, err
 		}
-		expressionTruthiness := Truthiness(expressionRes)
+		expressionTruthiness := interpreter.Truthiness(expressionRes)
 		if expressionTruthiness.Value == false {
 			break
 		}

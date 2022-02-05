@@ -28,12 +28,12 @@ func (interpreter *Interpreter) doLessThan(tree *parser.Token) (*BeccaValue, err
 	if err != nil {
 		return nil, err
 	}
-	if leftValue.Type == TInt && rightValue.Type == TInt {
-		return BoolFromGoBoolean(leftValue.Value.(int64) < rightValue.Value.(int64)), nil
-	} else if leftValue.Type == TFloat && rightValue.Type == TFloat {
-		return BoolFromGoBoolean(leftValue.Value.(float64) < rightValue.Value.(float64)), nil
-	} else if leftValue.Type == TString && rightValue.Type == TString {
-		return BoolFromGoBoolean(leftValue.Value.(string) < rightValue.Value.(string)), nil
+	if leftValue.IsInstanceOf(TInt) && rightValue.IsInstanceOf(TInt) {
+		return interpreter.NewBool(leftValue.Value.(int64) < rightValue.Value.(int64)), nil
+	} else if leftValue.IsInstanceOf(TFloat) && rightValue.IsInstanceOf(TFloat) {
+		return interpreter.NewBool(leftValue.Value.(float64) < rightValue.Value.(float64)), nil
+	} else if leftValue.IsInstanceOf(TString) && rightValue.IsInstanceOf(TString) {
+		return interpreter.NewBool(leftValue.Value.(string) < rightValue.Value.(string)), nil
 	} else if leftValue.Type == rightValue.Type {
 		return nil, common.NewException(common.TypeError, fmt.Sprintf("type %v cannot be compared with <", rightValue.Type), tree.Line, tree.Col)
 	}
@@ -45,12 +45,12 @@ func (interpreter *Interpreter) doGreaterThan(tree *parser.Token) (*BeccaValue, 
 	if err != nil {
 		return nil, err
 	}
-	if leftValue.Type == TInt && rightValue.Type == TInt {
-		return BoolFromGoBoolean(leftValue.Value.(int64) > rightValue.Value.(int64)), nil
-	} else if leftValue.Type == TFloat && rightValue.Type == TFloat {
-		return BoolFromGoBoolean(leftValue.Value.(float64) > rightValue.Value.(float64)), nil
-	} else if leftValue.Type == TString && rightValue.Type == TString {
-		return BoolFromGoBoolean(leftValue.Value.(string) > rightValue.Value.(string)), nil
+	if leftValue.IsInstanceOf(TInt) && rightValue.IsInstanceOf(TInt) {
+		return interpreter.NewBool(leftValue.Value.(int64) > rightValue.Value.(int64)), nil
+	} else if leftValue.IsInstanceOf(TFloat) && rightValue.IsInstanceOf(TFloat) {
+		return interpreter.NewBool(leftValue.Value.(float64) > rightValue.Value.(float64)), nil
+	} else if leftValue.IsInstanceOf(TString) && rightValue.IsInstanceOf(TString) {
+		return interpreter.NewBool(leftValue.Value.(string) > rightValue.Value.(string)), nil
 	} else if leftValue.Type == rightValue.Type {
 		return nil, common.NewException(common.TypeError, fmt.Sprintf("type %v cannot be compared with >", rightValue.Type), tree.Line, tree.Col)
 	}
@@ -63,16 +63,16 @@ func (interpreter *Interpreter) doLessThanOrEqualTo(tree *parser.Token) (*BeccaV
 		return nil, err
 	}
 	if equal.Value == true {
-		return True(), nil
+		return interpreter.True(), nil
 	}
 	lessThan, err := interpreter.doLessThan(tree)
 	if err != nil {
 		return nil, err
 	}
 	if lessThan.Value == true {
-		return True(), nil
+		return interpreter.True(), nil
 	}
-	return False(), nil
+	return interpreter.False(), nil
 }
 
 func (interpreter *Interpreter) doGreaterThanOrEqualTo(tree *parser.Token) (*BeccaValue, error) {
@@ -81,16 +81,16 @@ func (interpreter *Interpreter) doGreaterThanOrEqualTo(tree *parser.Token) (*Bec
 		return nil, err
 	}
 	if equal.Value == true {
-		return True(), nil
+		return interpreter.True(), nil
 	}
 	lessThan, err := interpreter.doGreaterThan(tree)
 	if err != nil {
 		return nil, err
 	}
 	if lessThan.Value == true {
-		return True(), nil
+		return interpreter.True(), nil
 	}
-	return False(), nil
+	return interpreter.False(), nil
 }
 
 func (interpreter *Interpreter) doEqualityCheck(tree *parser.Token) (*BeccaValue, error) {
@@ -99,12 +99,12 @@ func (interpreter *Interpreter) doEqualityCheck(tree *parser.Token) (*BeccaValue
 		return nil, err
 	}
 	if leftValue.Type != rightValue.Type {
-		return False(), nil
+		return interpreter.False(), nil
 	}
 	if leftValue.Value == rightValue.Value {
-		return True(), nil
+		return interpreter.True(), nil
 	}
-	return False(), nil
+	return interpreter.False(), nil
 }
 
 func (interpreter *Interpreter) doInequalityCheck(tree *parser.Token) (*BeccaValue, error) {
@@ -113,9 +113,9 @@ func (interpreter *Interpreter) doInequalityCheck(tree *parser.Token) (*BeccaVal
 		return nil, err
 	}
 	if result.Value == false {
-		return True(), nil
+		return interpreter.True(), nil
 	} else {
-		return False(), nil
+		return interpreter.False(), nil
 	}
 }
 
@@ -126,7 +126,7 @@ func (interpreter *Interpreter) doAnd(tree *parser.Token) (*BeccaValue, error) {
 	if err != nil {
 		return nil, err
 	}
-	leftTruthy := Truthiness(leftValue)
+	leftTruthy := interpreter.Truthiness(leftValue)
 
 	if leftTruthy.Value == false {
 		return leftValue, nil
@@ -140,7 +140,7 @@ func (interpreter *Interpreter) doOr(tree *parser.Token) (*BeccaValue, error) {
 	if err != nil {
 		return nil, err
 	}
-	leftTruthy := Truthiness(leftValue)
+	leftTruthy := interpreter.Truthiness(leftValue)
 	if leftTruthy.Value == true {
 		return leftValue, nil
 	}
@@ -175,26 +175,17 @@ func (interpreter *Interpreter) doAddition(tree *parser.Token) (*BeccaValue, err
 	if err != nil {
 		return nil, err
 	}
-	if leftValue.Type == TInt && rightValue.Type == TInt {
+	if leftValue.IsInstanceOf(TInt) && rightValue.IsInstanceOf(TInt) {
 		newValue := leftValue.Value.(int64) + rightValue.Value.(int64)
-		return &BeccaValue{
-			Type:  TInt,
-			Value: newValue,
-		}, nil
+		return interpreter.NewInt(newValue), nil
 	}
-	if leftValue.Type == TFloat && rightValue.Type == TFloat {
+	if leftValue.IsInstanceOf(TFloat) && rightValue.IsInstanceOf(TFloat) {
 		newValue := leftValue.Value.(float64) + rightValue.Value.(float64)
-		return &BeccaValue{
-			Type:  TFloat,
-			Value: newValue,
-		}, nil
+		return interpreter.NewFloat(newValue), nil
 	}
-	if leftValue.Type == TString && rightValue.Type == TString {
+	if leftValue.IsInstanceOf(TString) && rightValue.IsInstanceOf(TString) {
 		newValue := leftValue.Value.(string) + rightValue.Value.(string)
-		return &BeccaValue{
-			Type:  TString,
-			Value: newValue,
-		}, nil
+		return interpreter.NewString(newValue), nil
 	}
 	if leftValue.Type == rightValue.Type {
 		return nil, fmt.Errorf("typeerror: type %v does not support operator + at line %v, col %v", leftValue.Type, tree.Line, tree.Col)
@@ -207,19 +198,13 @@ func (interpreter *Interpreter) doSubtraction(tree *parser.Token) (*BeccaValue, 
 	if err != nil {
 		return nil, err
 	}
-	if leftValue.Type == TInt && rightValue.Type == TInt {
+	if leftValue.IsInstanceOf(TInt) && rightValue.IsInstanceOf(TInt) {
 		newValue := leftValue.Value.(int64) - rightValue.Value.(int64)
-		return &BeccaValue{
-			Type:  TInt,
-			Value: newValue,
-		}, nil
+		return interpreter.NewInt(newValue), nil
 	}
-	if leftValue.Type == TFloat && rightValue.Type == TFloat {
+	if leftValue.IsInstanceOf(TFloat) && rightValue.IsInstanceOf(TFloat) {
 		newValue := leftValue.Value.(float64) - rightValue.Value.(float64)
-		return &BeccaValue{
-			Type:  TFloat,
-			Value: newValue,
-		}, nil
+		return interpreter.NewFloat(newValue), nil
 	}
 	if leftValue.Type == rightValue.Type {
 		return nil, fmt.Errorf("typeerror: type %v does not support operator - at line %v, col %v", leftValue.Type, tree.Line, tree.Col)
@@ -232,19 +217,13 @@ func (interpreter *Interpreter) doMultiplication(tree *parser.Token) (*BeccaValu
 	if err != nil {
 		return nil, err
 	}
-	if leftValue.Type == TInt && rightValue.Type == TInt {
+	if leftValue.IsInstanceOf(TInt) && rightValue.IsInstanceOf(TInt) {
 		newValue := leftValue.Value.(int64) * rightValue.Value.(int64)
-		return &BeccaValue{
-			Type:  TInt,
-			Value: newValue,
-		}, nil
+		return interpreter.NewInt(newValue), nil
 	}
-	if leftValue.Type == TFloat && rightValue.Type == TFloat {
+	if leftValue.IsInstanceOf(TFloat) && rightValue.IsInstanceOf(TFloat) {
 		newValue := leftValue.Value.(float64) * rightValue.Value.(float64)
-		return &BeccaValue{
-			Type:  TFloat,
-			Value: newValue,
-		}, nil
+		return interpreter.NewFloat(newValue), nil
 	}
 	if leftValue.Type == rightValue.Type {
 		return nil, fmt.Errorf("typeerror: type %v does not support operator * at line %v, col %v", leftValue.Type, tree.Line, tree.Col)
@@ -257,25 +236,19 @@ func (interpreter *Interpreter) doDivision(tree *parser.Token) (*BeccaValue, err
 	if err != nil {
 		return nil, err
 	}
-	if leftValue.Type == TInt && rightValue.Type == TInt {
+	if leftValue.IsInstanceOf(TInt) && rightValue.IsInstanceOf(TInt) {
 		if rightValue.Value.(int64) == 0 {
 			return nil, fmt.Errorf("dividebyzeroerror: integer division by zero at line %v, col %v", tree.Line, tree.Col)
 		}
 		newValue := leftValue.Value.(int64) / rightValue.Value.(int64)
-		return &BeccaValue{
-			Type:  TInt,
-			Value: newValue,
-		}, nil
+		return interpreter.NewInt(newValue), nil
 	}
-	if leftValue.Type == TFloat && rightValue.Type == TFloat {
+	if leftValue.IsInstanceOf(TFloat) && rightValue.IsInstanceOf(TFloat) {
 		if rightValue.Value.(int64) == 0.0 {
 			return nil, fmt.Errorf("dividebyzeroerror: float division by zero at line %v, col %v", tree.Line, tree.Col)
 		}
 		newValue := leftValue.Value.(float64) / rightValue.Value.(float64)
-		return &BeccaValue{
-			Type:  TFloat,
-			Value: newValue,
-		}, nil
+		return interpreter.NewFloat(newValue), nil
 	}
 	if leftValue.Type == rightValue.Type {
 		return nil, fmt.Errorf("typeerror: type %v does not support operator / at line %v, col %v", leftValue.Type, tree.Line, tree.Col)
@@ -288,15 +261,12 @@ func (interpreter *Interpreter) doModulo(tree *parser.Token) (*BeccaValue, error
 	if err != nil {
 		return nil, err
 	}
-	if leftValue.Type == TInt && rightValue.Type == TInt {
+	if leftValue.IsInstanceOf(TInt) && rightValue.IsInstanceOf(TInt) {
 		if rightValue.Value.(int64) == 0 {
 			return nil, fmt.Errorf("dividebyzeroerror: integer modulo by zero at line %v, col %v", tree.Line, tree.Col)
 		}
 		newValue := leftValue.Value.(int64) % rightValue.Value.(int64)
-		return &BeccaValue{
-			Type:  TInt,
-			Value: newValue,
-		}, nil
+		return interpreter.NewInt(newValue), nil
 	}
 	if leftValue.Type == rightValue.Type {
 		return nil, fmt.Errorf("typeerror: type %v does not support operator %% at line %v, col %v", leftValue.Type, tree.Line, tree.Col)

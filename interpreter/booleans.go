@@ -1,52 +1,53 @@
 package interpreter
 
-func BoolFromGoBoolean(x bool) *BeccaValue {
-	if x {
-		return True()
-	}
-	return False()
-}
+import "github.com/nicholasbailey/becca/common"
 
-func False() *BeccaValue {
+func (interpreter *Interpreter) NewBool(x bool) *BeccaValue {
 	return &BeccaValue{
-		Type:  TBool,
-		Value: false,
+		Type:  interpreter.MustResolveType(TBool),
+		Value: x,
 	}
 }
 
-func True() *BeccaValue {
-	return &BeccaValue{
-		Type:  TBool,
-		Value: true,
-	}
+func (interpreter *Interpreter) False() *BeccaValue {
+	return interpreter.NewBool(false)
 }
 
-func Truthiness(value *BeccaValue) *BeccaValue {
-	switch value.Type {
+func (interpreter *Interpreter) True() *BeccaValue {
+	return interpreter.NewBool(true)
+}
+
+func ConstructBool(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, common.Exception) {
+	v := values[0]
+	return interpreter.Truthiness(v), nil
+}
+
+func (interpreter *Interpreter) Truthiness(value *BeccaValue) *BeccaValue {
+	switch value.Type.Value {
 	case TBool:
 		return value
 	case TString:
 		if value.Value.(string) == "" {
-			return False()
+			return interpreter.False()
 		} else {
-			return True()
+			return interpreter.True()
 		}
 	case TInt:
 		if value.Value.(int64) == 0 {
-			return False()
+			return interpreter.False()
 		} else {
-			return True()
+			return interpreter.True()
 		}
 	case TFloat:
 		if value.Value.(float64) == 0.0 {
-			return False()
+			return interpreter.False()
 		} else {
-			return True()
+			return interpreter.True()
 		}
 	case TNull:
-		return False()
+		return interpreter.False()
 	case TFunction:
-		return True()
+		return interpreter.True()
 	}
 	// TODO - handle error correctly
 	panic("How did we get here")

@@ -1,0 +1,3 @@
+// Objects can have methods
+
+"Hello".length();

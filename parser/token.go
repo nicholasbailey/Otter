@@ -37,6 +37,7 @@ const (
 	FunctionParameters Symbol = "(FUNCTIONPARAMETERS)"
 	// Symbol for a function invocation
 	FunctionInvocation Symbol = "(FUNCTIONINVOCATION)"
+	Access             Symbol = "(ACCESS)"
 )
 
 type NudFunction func(right *Token, parser *Parser) (*Token, common.Exception)

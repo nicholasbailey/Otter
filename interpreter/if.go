@@ -14,7 +14,7 @@ func (interpreter *Interpreter) doIf(tree *parser.Token) (*BeccaValue, error) {
 	if err != nil {
 		return nil, err
 	}
-	executeCondition := Truthiness(conditionValue)
+	executeCondition := interpreter.Truthiness(conditionValue)
 	if executeCondition.Value == true {
 		block := tree.Children[1]
 		return interpreter.Evaluate(block)
@@ -23,8 +23,9 @@ func (interpreter *Interpreter) doIf(tree *parser.Token) (*BeccaValue, error) {
 		if child.Symbol == parser.ElseIf {
 			return interpreter.doIf(child)
 		} else {
+			// TODO - more checks here
 			return interpreter.Evaluate(child)
 		}
 	}
-	return Null(), nil
+	return interpreter.NewNull(), nil
 }

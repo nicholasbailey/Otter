@@ -7,6 +7,8 @@ import (
 	"io"
 	"strings"
 	"unicode"
+
+	"github.com/nicholasbailey/becca/common"
 )
 
 type LexerState int
@@ -19,7 +21,8 @@ const (
 	name                     = 4
 	whiteSpace               = 5
 	operator                 = 6
-	eof                      = 7
+	comment                  = 7
+	eof                      = 8
 )
 
 func (state LexerState) String() string {
@@ -38,6 +41,8 @@ func (state LexerState) String() string {
 		return "whiteSpace"
 	case operator:
 		return "operator"
+	case comment:
+		return "comment"
 	case eof:
 		return "eof"
 	}
@@ -156,6 +161,8 @@ func (lexer *Lexer) endOfToken() (*Token, error) {
 		return token, nil
 	case whiteSpace:
 		return nil, fmt.Errorf("syntaxerror: attempted to resolve token in whitespace at line %v, col %v", lexer.line, lexer.col)
+	case comment:
+		return nil, common.NewException(common.SyntaxError, "attempted to resolve token in comment", lexer.line, lexer.col)
 	default:
 		return nil, fmt.Errorf("syntaxerror: attempted to resolve token in unkown parse state at line %v, col %v", lexer.line, lexer.col)
 	}
@@ -256,16 +263,25 @@ func (lexer *Lexer) Next() (*Token, error) {
 		case operator:
 			currentString := lexer.builder.String()
 			stringWithNewChar := currentString + string(char)
-			if lexer.languageSpec.IsDefined(Symbol(stringWithNewChar)) {
-				lexer.builder.WriteRune(char)
-			} else if lexer.languageSpec.IsDefined(Symbol(currentString)) {
-				token, err = lexer.endOfToken()
-				if err != nil {
-					return nil, err
-				}
-				lexer.startOfToken(char)
+			if lexer.languageSpec.IsCommentStart(Symbol(stringWithNewChar)) {
+				lexer.builder = strings.Builder{}
+				lexer.currentState = comment
 			} else {
-				return nil, fmt.Errorf("syntaxerror: unrecognized operator %v at line %v, col %v", string(char), lexer.line, lexer.col)
+				if lexer.languageSpec.IsDefined(Symbol(stringWithNewChar)) {
+					lexer.builder.WriteRune(char)
+				} else if lexer.languageSpec.IsDefined(Symbol(currentString)) {
+					token, err = lexer.endOfToken()
+					if err != nil {
+						return nil, err
+					}
+					lexer.startOfToken(char)
+				} else {
+					return nil, fmt.Errorf("syntaxerror: unrecognized operator %v at line %v, col %v", string(char), lexer.line, lexer.col)
+				}
+			}
+		case comment:
+			if char == '\n' {
+				lexer.currentState = unknown
 			}
 		default:
 			return nil, fmt.Errorf("syntaxerror: invalid lexer state state %v at line %v, col %v", lexer.currentState, lexer.line, lexer.col)

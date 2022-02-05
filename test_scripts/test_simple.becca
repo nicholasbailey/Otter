@@ -1,6 +1,8 @@
+// Assignment
 x = 0;
 y = 2;
 
+// Conditionals
 if (x == 0) {
    print("zero");
 } else if (x == 1) {
@@ -11,11 +13,13 @@ if (x == 0) {
     print("More");
 }
 
+// While loops
 i = 0;
 while i < 10 {
     print(i);
     i = i + 1;
 }
 
+// Function calls
 sum = x + y;
 print(x, y, sum);

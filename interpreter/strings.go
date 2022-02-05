@@ -6,14 +6,14 @@ import (
 	"github.com/nicholasbailey/becca/common"
 )
 
-func String(values []*BeccaValue) (*BeccaValue, common.Exception) {
+func ConstructString(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, common.Exception) {
 	if len(values) > 1 || len(values) == 0 {
 		// TODO - get call stack info for builtins
 		return nil, common.NewException("ArgumentError", "", 0, 0)
 	}
 	value := values[0]
 	var strVal string
-	switch value.Type {
+	switch value.Type.Value {
 	case TString:
 		strVal = value.Value.(string)
 	case TInt:
@@ -30,20 +30,34 @@ func String(values []*BeccaValue) (*BeccaValue, common.Exception) {
 	case TNull:
 		strVal = "<null>"
 	case TFunction:
-		// TODO - write a util for this
-		strVal = value.FunctionDefinition.Children[0].Value
+		strVal = value.Callable.Name
 	default:
 		strVal = "[Object]"
 	}
 	return &BeccaValue{
-		Type:  TString,
+		Type:  interpreter.MustResolveType(TString),
 		Value: strVal,
 	}, nil
 }
 
-func GoStringToBeccaString(s string) *BeccaValue {
+func (interpreter *Interpreter) NewString(s string) *BeccaValue {
 	return &BeccaValue{
-		Type:  TString,
+		Type:  interpreter.MustResolveType(TString),
 		Value: s,
 	}
+}
+
+func StringLength(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, common.Exception) {
+	// TODO - error handling
+	v := values[0]
+	s := v.Value.(string)
+	length := int64(len(s))
+	return interpreter.NewInt(length), nil
+}
+
+func DefineStringType(interpreter *Interpreter) {
+	interpreter.DefineType(TString, NewBuiltInConstructor(TString, 1, ConstructString))
+	length, _ := interpreter.NewBuiltInFunction("length", 1, StringLength)
+
+	interpreter.DefineMethod(TString, "length", length.Callable)
 }

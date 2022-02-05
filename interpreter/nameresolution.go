@@ -7,7 +7,7 @@ import (
 	"github.com/nicholasbailey/becca/parser"
 )
 
-func (intepreter *Interpreter) resolveName(name *parser.Token) (*BeccaValue, error) {
+func (intepreter *Interpreter) resolveName(name *parser.Token) (*BeccaValue, common.Exception) {
 	val, found := intepreter.CallStack.ResolveVariable(name.Value)
 	if found {
 		return val, nil

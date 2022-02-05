@@ -7,40 +7,104 @@ import (
 	"github.com/nicholasbailey/becca/parser"
 )
 
-func (interpreter *Interpreter) defineFunction(tree *parser.Token) (*BeccaValue, error) {
+const Variadic = -1
 
-	// TODO - validate inputs
-	functionName := tree.Children[0].Value
-	newValue := &BeccaValue{
-		Type:               TFunction,
-		Value:              nil, // TODO - figure out what this should be
-		FunctionDefinition: tree,
+func ConstructFunction(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, common.Exception) {
+	return nil, common.NewException(common.NameError, "function is not callable", 0, 0)
+}
+
+func ValidateFunctionDefinition(tree *parser.Token) common.Exception {
+	if tree == nil {
+		return common.NewException(common.InternalError, "null token passed to NewUserDefinedFunction", 0, 0)
 	}
-	err := interpreter.CallStack.AssignVariable(functionName, newValue)
+	if tree.Symbol != parser.FunctionDefinition {
+		return common.NewException(common.InternalError, fmt.Sprintf("non function definition token %v passed to NewUserDefinedFunction", tree.Symbol), tree.Line, tree.Col)
+	}
+	return nil
+}
+
+func (interpreter *Interpreter) NewBuiltInFunction(name string, arity int, builtIn BuiltInFunction) (*BeccaValue, common.Exception) {
+	// TODO - santize inputs
+	callable := &Callable{
+		Name:                name,
+		Arity:               arity,
+		BuiltInFunction:     builtIn,
+		UserDefinedFunction: nil,
+	}
+	return &BeccaValue{
+		Type:     interpreter.MustResolveType(TFunction),
+		Value:    nil,
+		Callable: callable,
+	}, nil
+}
+
+// Gott a come up with a better name here
+func NewBuiltInConstructor(typeName TypeName, arity int, builtIn BuiltInFunction) *Callable {
+	return &Callable{
+		Name:                string(typeName),
+		Arity:               arity,
+		BuiltInFunction:     builtIn,
+		UserDefinedFunction: nil,
+	}
+}
+
+func (interpreter *Interpreter) NewUserDefinedFunction(tree *parser.Token) (*BeccaValue, common.Exception) {
+	err := ValidateFunctionDefinition(tree)
 	if err != nil {
 		return nil, err
 	}
-	return newValue, nil
+	functionName := tree.Children[0].Value
+	parameters := tree.Children[1].Children
+
+	callable := &Callable{
+		UserDefinedFunction: tree,
+		Arity:               len(parameters),
+		BuiltInFunction:     nil,
+		Name:                functionName,
+	}
+
+	return &BeccaValue{
+		Type:     interpreter.MustResolveType(TFunction),
+		Value:    nil, // TODO - figure out what this should be
+		Callable: callable,
+	}, nil
 }
 
-func (interpreter *Interpreter) callUserDefinedFunction(fn *BeccaValue, arguments []*BeccaValue) (*BeccaValue, error) {
+func (interpreter *Interpreter) defineFunction(tree *parser.Token) (*BeccaValue, error) {
 
-	fnTree := fn.FunctionDefinition
-	functionName := fn.FunctionDefinition.Children[0].Value
-	// TODO - check for well formed tree here
-	parameters := fnTree.Children[1].Children
+	udf, err := interpreter.NewUserDefinedFunction(tree)
+	if err != nil {
+		return nil, err
+	}
+	// TODO - prevent overriding builtins
+	err = interpreter.CallStack.AssignVariable(udf.Callable.Name, udf)
+	if err != nil {
+		return nil, err
+	}
+	return udf, nil
+}
+
+func (interpreter *Interpreter) invokeCallable(callable *Callable, arguments []*BeccaValue, line int, col int) (*BeccaValue, common.Exception) {
+	arity := callable.Arity
+	if arity != Variadic && len(arguments) != arity {
+		return nil, common.NewException(common.TypeError, fmt.Sprintf("%v takes exactly %v arguments, found %v", callable.Name, callable.Arity, len(arguments)), line, col)
+	}
+	if callable.BuiltInFunction != nil {
+		return callable.BuiltInFunction(interpreter, arguments)
+	}
+	udf := callable.UserDefinedFunction
+	parameters := udf.Children[1].Children
 	if len(parameters) != len(arguments) {
-		return nil, common.NewException(common.TypeError, fmt.Sprintf("%v takes %v arguments, got %v", functionName, len(parameters), len(arguments)), fnTree.Line, fnTree.Col)
+		return nil, common.NewException(common.TypeError, fmt.Sprintf("%v takes %v arguments, got %v", callable.Name, len(parameters), len(arguments)), line, col)
 	}
 	// TODO: Could this be cleaner
-	stackFrame := NewCallStackFrame(parser.Symbol(functionName))
+	stackFrame := NewCallStackFrame(callable.Name)
 	for index, parameter := range parameters {
 		arg := arguments[index]
 		stackFrame.Scope[parameter.Value] = arg
 	}
 	interpreter.CallStack.Push(stackFrame)
-	block := fn.FunctionDefinition.Children[2]
-	// TODO - more checks here
+	block := udf.Children[2]
 	var err error
 	for _, child := range block.Children {
 		_, err = interpreter.Evaluate(child)
@@ -54,32 +118,27 @@ func (interpreter *Interpreter) callUserDefinedFunction(fn *BeccaValue, argument
 			break
 		}
 	}
-
 	frame := interpreter.CallStack.Pop()
 	if err != nil {
 		return nil, err
 	}
-	// TODO this is gross, decide on return semantics
 	if frame.ReturnValue == nil {
-		frame.ReturnValue = Null()
+		frame.ReturnValue = interpreter.NewNull()
 	}
 	return frame.ReturnValue, nil
 }
 
-func (interpreter *Interpreter) callFunction(tree *parser.Token) (*BeccaValue, error) {
-
+// Should probably not be called call function, as it is also the syntax for other calls
+func (interpreter *Interpreter) callFunction(tree *parser.Token) (*BeccaValue, common.Exception) {
+	// TODO - check inputs
 	functionName := tree.Children[0]
-	function, builtInFound := interpreter.BuiltIns[functionName.Value]
-	var udf *BeccaValue
-	var err error
-	if !builtInFound {
-		udf, err = interpreter.resolveName(functionName)
-		if err != nil {
-			return nil, common.NewException(common.NameError, fmt.Sprintf("%v is not defined", functionName.Value), tree.Line, tree.Col)
-		}
-		if udf.FunctionDefinition == nil {
-			return nil, common.NewException(common.TypeError, fmt.Sprintf("%v object is not callable", udf.Type), tree.Line, tree.Col)
-		}
+	functionValue, err := interpreter.resolveName(functionName)
+	if err != nil {
+		return nil, err
+	}
+
+	if functionValue.Callable == nil {
+		return nil, common.NewException(common.TypeError, fmt.Sprintf("%v is not callable", functionName.Value), tree.Line, tree.Col)
 	}
 
 	// TODO - optimize memory allocation here
@@ -91,8 +150,6 @@ func (interpreter *Interpreter) callFunction(tree *parser.Token) (*BeccaValue, e
 		}
 		arguments = append(arguments, childValue)
 	}
-	if builtInFound {
-		return function(arguments)
-	}
-	return interpreter.callUserDefinedFunction(udf, arguments)
+
+	return interpreter.invokeCallable(functionValue.Callable, arguments, tree.Line, tree.Col)
 }

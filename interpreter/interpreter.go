@@ -10,30 +10,14 @@ import (
 
 // TODO - There are a lot of magic strings here
 
-type BeccaValue struct {
-	Type               BeccaType
-	Value              interface{}
-	FunctionDefinition *parser.Token
-}
-
-func Null() *BeccaValue {
-	return &BeccaValue{
-		Type:  TNull,
-		Value: nil,
-	}
-}
-
 type Scope map[string]*BeccaValue
 
 func NewScope() Scope {
 	return map[string]*BeccaValue{}
 }
 
-type BuiltInFunction func(values []*BeccaValue) (*BeccaValue, common.Exception)
-
 type Interpreter struct {
 	CallStack CallStack
-	BuiltIns  map[string]BuiltInFunction
 }
 
 func (interpreter *Interpreter) Execute(statements []*parser.Token) (*BeccaValue, common.Exception) {
@@ -52,33 +36,24 @@ func (interpreter *Interpreter) Execute(statements []*parser.Token) (*BeccaValue
 func (interpreter *Interpreter) Evaluate(tree *parser.Token) (*BeccaValue, common.Exception) {
 	switch tree.Symbol {
 	case parser.StringLiteral:
-		return &BeccaValue{
-			Type:  TString,
-			Value: tree.Value,
-		}, nil
+		return interpreter.NewString(tree.Value), nil
 	case parser.IntLiteral:
 		parsedInt, err := strconv.ParseInt(tree.Value, 0, 64)
 		if err != nil {
 			// TODO: Make this a proper exception
 			return nil, err
 		}
-		return &BeccaValue{
-			Type:  TInt,
-			Value: parsedInt,
-		}, nil
+		return interpreter.NewInt(parsedInt), nil
 	case parser.FloatLiteral:
 		parsedFloat, err := strconv.ParseFloat(tree.Value, 64)
 		if err != nil {
 			return nil, err
 		}
-		return &BeccaValue{
-			Type:  TFloat,
-			Value: parsedFloat,
-		}, nil
+		return interpreter.NewFloat(parsedFloat), nil
 	case "true":
-		return True(), nil
+		return interpreter.True(), nil
 	case "false":
-		return False(), nil
+		return interpreter.False(), nil
 	case parser.Name:
 		value, found := interpreter.CallStack.ResolveVariable(tree.Value)
 		if !found {
@@ -145,41 +120,50 @@ func (interpreter *Interpreter) Evaluate(tree *parser.Token) (*BeccaValue, commo
 		return value, nil
 	case "if":
 		return interpreter.doIf(tree)
+	case parser.Access:
+		return interpreter.doAccess(tree)
 	}
 
 	return nil, fmt.Errorf("syntaxerror: unrecognized symbol '%v' at line %v, col %v", tree.Value, tree.Line, tree.Col)
 }
 
+func (interpreter *Interpreter) DefineGlobal(name string, value *BeccaValue) {
+	interpreter.CallStack.Globals().Scope[name] = value
+}
+
+func (interpreter *Interpreter) DefineMethod(typeName TypeName, methodName string, callable *Callable) {
+	typeVal := interpreter.MustResolveType(typeName)
+	typeVal.Methods[methodName] = callable
+}
+
 func NewInterpreter() *Interpreter {
-	print := func(values []*BeccaValue) (*BeccaValue, common.Exception) {
-		for _, value := range values {
-			switch value.Type {
-			case TString:
-				fmt.Print(value.Value.(string))
-			case TInt:
-				// TODO - move away from builtin
-				fmt.Print(value.Value.(int64))
-			case TBool:
-				fmt.Print(value.Value.(bool))
-			case TFloat:
-				fmt.Print(value.Value.(float64))
-			case TNull:
-				fmt.Print("<null>")
-			}
-			fmt.Print(" ")
-		}
-		fmt.Print("\n")
-		return Null(), nil
-	}
 	interpreter := &Interpreter{
-		BuiltIns:  map[string]BuiltInFunction{},
 		CallStack: *NewCallStack(),
 	}
 	globalFrame := NewCallStackFrame("global")
-	globalFrame.Scope["true"] = True()
-	globalFrame.Scope["false"] = False()
 	interpreter.CallStack.Push(globalFrame)
-	interpreter.BuiltIns["print"] = print
-	interpreter.BuiltIns["string"] = String
+	DefineTypeType(interpreter)
+
+	// Define built in types
+	DefineStringType(interpreter)
+	// DefineIntType(interpreter)
+	// DefineBoolType(interpreter)
+	// DefineFloatType(interpreter)
+	// DefineNullType(interpreter)
+	// DefineFunctionType(interpreter)
+	// DefineListType(interpreter)
+
+	interpreter.DefineType(TInt, NewBuiltInConstructor(TString, 1, ConstructInt))
+	interpreter.DefineType(TFloat, NewBuiltInConstructor(TFloat, 1, ConstructFloat))
+	interpreter.DefineType(TBool, NewBuiltInConstructor(TBool, 1, ConstructBool))
+	interpreter.DefineType(TNull, NewBuiltInConstructor(TNull, 0, ConstructNull))
+
+	interpreter.DefineType(TFunction, NewBuiltInConstructor("function", 0, ConstructFunction))
+	interpreter.DefineGlobal("true", interpreter.True())
+	interpreter.DefineGlobal("false", interpreter.False())
+	interpreter.DefineGlobal("null", interpreter.NewNull())
+	printfn, _ := interpreter.NewBuiltInFunction("print", Variadic, Print)
+	interpreter.DefineGlobal("print", printfn)
+
 	return interpreter
 }

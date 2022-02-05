@@ -1,0 +1,37 @@
+// Strings can be defined with single quotes
+x = 'Hello';
+
+assertEqual("Hello", x);
+
+// Strings can be defined with double quotes
+
+y = "Hello";
+
+assertEqual('Hello', x);
+
+// Strings can be compared
+
+assertTrue("Hello" == x);
+assertTrue("A" < "Hello");
+assertTrue("I" > "Hello");
+
+// Strings can be concatenated
+x = "One"
+y = "Two"
+
+assertEqual("OneTwo", x + y)
+
+// Other types can be converted to strings
+
+assertEqual(string(1), "1");
+assertEqual(string("Hello"), "Hello");
+assertEqual(string(3.45), "3.45");
+assertEqual(string(true), "true");
+assertEqual(string(false), "false");
+assertEqual(string(null), "<null>");
+
+// Strings have a bunch of functions defined on them
+
+assertEqual("Hello".toLowerCase(), "hello");
+assertEqual("Hello".toUpperCase(), "HELLO");
+assertEqual("Hello".toUpperCase(), "HELLO");

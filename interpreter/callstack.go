@@ -2,17 +2,15 @@ package interpreter
 
 import (
 	"container/list"
-
-	"github.com/nicholasbailey/becca/parser"
 )
 
 type CallStackFrame struct {
 	Scope        Scope
-	FunctionName parser.Symbol
+	FunctionName string
 	ReturnValue  *BeccaValue
 }
 
-func NewCallStackFrame(name parser.Symbol) *CallStackFrame {
+func NewCallStackFrame(name string) *CallStackFrame {
 	scope := NewScope()
 	return &CallStackFrame{
 		Scope:        scope,
@@ -29,6 +27,11 @@ func NewCallStack() *CallStack {
 	return &CallStack{
 		list: list,
 	}
+}
+
+func (s *CallStack) Globals() *CallStackFrame {
+	front := s.list.Front()
+	return front.Value.(*CallStackFrame)
 }
 
 func (s *CallStack) Push(x *CallStackFrame) {
