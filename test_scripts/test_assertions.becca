@@ -1,0 +1,8 @@
+// We can assert two things are equal
+
+assertEqual("Hello", "Hello");
+
+// But if two things aren't equal, watch out!
+
+
+assertEqual(1, true);

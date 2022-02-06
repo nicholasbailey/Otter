@@ -1,3 +1,7 @@
 // Objects can have methods
 
-"Hello".length();
+print("Hello".length());
+
+// Methods with no arguments don't need parens
+
+print("Hello".length);

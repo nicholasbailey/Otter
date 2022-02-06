@@ -16,10 +16,10 @@ assertTrue("A" < "Hello");
 assertTrue("I" > "Hello");
 
 // Strings can be concatenated
-x = "One"
-y = "Two"
+x = "One";
+y = "Two";
 
-assertEqual("OneTwo", x + y)
+assertEqual("OneTwo", x + y);
 
 // Other types can be converted to strings
 
@@ -32,6 +32,15 @@ assertEqual(string(null), "<null>");
 
 // Strings have a bunch of functions defined on them
 
+// Casing methods
 assertEqual("Hello".toLowerCase(), "hello");
 assertEqual("Hello".toUpperCase(), "HELLO");
-assertEqual("Hello".toUpperCase(), "HELLO");
+
+// Replacement
+replacement = "Shadow is a bad cat".replace("bad", "good").replace("cat", "dog").replace("Shadow", "McDuff");
+assertEqual(replacement, "McDuff is a good dog");
+
+// Containment
+
+
+print("All String Tests Passed!");
