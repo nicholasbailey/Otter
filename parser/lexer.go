@@ -8,7 +8,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/nicholasbailey/becca/common"
+	"github.com/nicholasbailey/becca/exception"
 )
 
 type LexerState int
@@ -162,7 +162,7 @@ func (lexer *Lexer) endOfToken() (*Token, error) {
 	case whiteSpace:
 		return nil, fmt.Errorf("syntaxerror: attempted to resolve token in whitespace at line %v, col %v", lexer.line, lexer.col)
 	case comment:
-		return nil, common.NewException(common.SyntaxError, "attempted to resolve token in comment", lexer.line, lexer.col)
+		return nil, exception.New(exception.SyntaxError, "attempted to resolve token in comment", lexer.line, lexer.col)
 	default:
 		return nil, fmt.Errorf("syntaxerror: attempted to resolve token in unkown parse state at line %v, col %v", lexer.line, lexer.col)
 	}

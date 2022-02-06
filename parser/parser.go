@@ -3,7 +3,7 @@ package parser
 import (
 	"fmt"
 
-	"github.com/nicholasbailey/becca/common"
+	"github.com/nicholasbailey/becca/exception"
 )
 
 func NewParser(lexer *Lexer) *Parser {
@@ -52,7 +52,7 @@ func (parser *Parser) Statement() (*Token, error) {
 	}
 	terminator, err := parser.Lexer.Next()
 	if !parser.Lexer.IsStatementTerminator(terminator) {
-		return nil, common.NewException(common.SyntaxError, fmt.Sprintf("unterminated statement with %v", terminator.Value), terminator.Line, terminator.Col)
+		return nil, exception.New(exception.SyntaxError, fmt.Sprintf("unterminated statement with %v", terminator.Value), terminator.Line, terminator.Col)
 	}
 	if err != nil {
 		return nil, err
@@ -80,7 +80,7 @@ func (parser *Parser) Statements() ([]*Token, error) {
 	return statements, nil
 }
 
-func (parser *Parser) Expression(rightBindingPower int) (*Token, common.Exception) {
+func (parser *Parser) Expression(rightBindingPower int) (*Token, exception.Exception) {
 	var left *Token
 
 	t, err := parser.Lexer.Next()
@@ -88,7 +88,7 @@ func (parser *Parser) Expression(rightBindingPower int) (*Token, common.Exceptio
 		return nil, err
 	}
 	if t.Nud == nil {
-		return nil, common.NewException(common.SyntaxError, fmt.Sprintf("%v is not a valid prefix symbol", t.Value), t.Line, t.Col)
+		return nil, exception.New(exception.SyntaxError, fmt.Sprintf("%v is not a valid prefix symbol", t.Value), t.Line, t.Col)
 	}
 	left, err = t.Nud(t, parser)
 	if err != nil {

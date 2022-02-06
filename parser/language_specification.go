@@ -1,10 +1,9 @@
 package parser
 
 import (
-	"fmt"
 	"unicode"
 
-	"github.com/nicholasbailey/becca/common"
+	"github.com/nicholasbailey/becca/exception"
 )
 
 // TODO: this needs a good bit of refactoring
@@ -64,7 +63,7 @@ func (spec *LanguageSpecification) IsAnyBlockEnd(symbol Symbol) bool {
 func (spec *LanguageSpecification) DefineBlock(startSymbol Symbol, endSymbol Symbol) {
 	spec.DefineEmpty(endSymbol)
 
-	std := func(token *Token, parser *Parser) (*Token, common.Exception) {
+	std := func(token *Token, parser *Parser) (*Token, exception.Exception) {
 		statements, err := parser.Statements()
 		if err != nil {
 			return nil, err
@@ -212,7 +211,7 @@ func (spec *LanguageSpecification) DefineQuotes(openQuote rune, closeQuote rune,
 }
 
 func (spec *LanguageSpecification) DefineInfix(symbol Symbol, bindingPower int) {
-	led := func(t *Token, parser *Parser, left *Token) (*Token, common.Exception) {
+	led := func(t *Token, parser *Parser, left *Token) (*Token, exception.Exception) {
 		t.Children = append(t.Children, left)
 		exprResult, err := parser.Expression(t.BindingPower)
 		if err != nil {
@@ -225,7 +224,7 @@ func (spec *LanguageSpecification) DefineInfix(symbol Symbol, bindingPower int) 
 }
 
 func (spec *LanguageSpecification) DefinePrefix(symbol Symbol, bindingPower int) {
-	nud := func(t *Token, parser *Parser) (*Token, common.Exception) {
+	nud := func(t *Token, parser *Parser) (*Token, exception.Exception) {
 		expResult, err := parser.Expression(bindingPower)
 		if err != nil {
 			return nil, err
@@ -238,29 +237,10 @@ func (spec *LanguageSpecification) DefinePrefix(symbol Symbol, bindingPower int)
 
 // come up with a better name for this
 func (spec *LanguageSpecification) DefineValue(symbol Symbol) {
-	nud := func(t *Token, p *Parser) (*Token, common.Exception) {
+	nud := func(t *Token, p *Parser) (*Token, exception.Exception) {
 		return t, nil
 	}
 	spec.Define(symbol, 0, 0, nud, nil, nil)
-}
-
-func (spec *LanguageSpecification) DefineParens(openParens Symbol, closeParens Symbol) {
-	nud := func(t *Token, p *Parser) (*Token, common.Exception) {
-		expressionToken, err := p.Expression(0)
-		if err != nil {
-			return nil, err
-		}
-		next, err := p.Lexer.Next()
-		if err != nil {
-			return nil, err
-		}
-		if next.Symbol != closeParens {
-			return nil, fmt.Errorf("SyntaxError: Unterminated braces at line %v, col %v", next.Line, next.Col)
-		}
-		return expressionToken, nil
-	}
-	spec.Define(openParens, 0, 0, nud, nil, nil)
-	spec.DefineValue(closeParens)
 }
 
 func (spec *LanguageSpecification) DefineStatment(symbol Symbol, std StdFunction) {

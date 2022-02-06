@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/nicholasbailey/becca/common"
+	"github.com/nicholasbailey/becca/exception"
 )
 
 // Represents the 'type' of a token. Symbols determine
@@ -38,11 +38,12 @@ const (
 	// Symbol for a function invocation
 	FunctionInvocation Symbol = "(FUNCTIONINVOCATION)"
 	Access             Symbol = "(ACCESS)"
+	While              Symbol = "(WHILE)"
 )
 
-type NudFunction func(right *Token, parser *Parser) (*Token, common.Exception)
-type LedFunction func(right *Token, parser *Parser, left *Token) (*Token, common.Exception)
-type StdFunction func(*Token, *Parser) (*Token, common.Exception)
+type NudFunction func(right *Token, parser *Parser) (*Token, exception.Exception)
+type LedFunction func(right *Token, parser *Parser, left *Token) (*Token, exception.Exception)
+type StdFunction func(*Token, *Parser) (*Token, exception.Exception)
 
 // The 'Token' is the core data type of the parser
 // A token is overloaded - it's both a token emitted
