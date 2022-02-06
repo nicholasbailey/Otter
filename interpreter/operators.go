@@ -3,13 +3,13 @@ package interpreter
 import (
 	"fmt"
 
-	"github.com/nicholasbailey/becca/common"
+	"github.com/nicholasbailey/becca/exception"
 	"github.com/nicholasbailey/becca/parser"
 )
 
 func resolveBinaryOperands(interpreter *Interpreter, tree *parser.Token) (*BeccaValue, *BeccaValue, error) {
 	if len(tree.Children) != 2 {
-		return nil, nil, common.NewException(common.SyntaxError, fmt.Sprintf("invalid symbol %v", tree.Value), tree.Line, tree.Col)
+		return nil, nil, exception.New(exception.SyntaxError, fmt.Sprintf("invalid symbol %v", tree.Value), tree.Line, tree.Col)
 	}
 	left := tree.Children[0]
 	right := tree.Children[1]
@@ -35,9 +35,9 @@ func (interpreter *Interpreter) doLessThan(tree *parser.Token) (*BeccaValue, err
 	} else if leftValue.IsInstanceOf(TString) && rightValue.IsInstanceOf(TString) {
 		return interpreter.NewBool(leftValue.Value.(string) < rightValue.Value.(string)), nil
 	} else if leftValue.Type == rightValue.Type {
-		return nil, common.NewException(common.TypeError, fmt.Sprintf("type %v cannot be compared with <", rightValue.Type), tree.Line, tree.Col)
+		return nil, exception.New(exception.TypeError, fmt.Sprintf("type %v cannot be compared with <", rightValue.Type), tree.Line, tree.Col)
 	}
-	return nil, common.NewException(common.TypeError, "attempted to compare incomparable types with <", tree.Line, tree.Col)
+	return nil, exception.New(exception.TypeError, "attempted to compare incomparable types with <", tree.Line, tree.Col)
 }
 
 func (interpreter *Interpreter) doGreaterThan(tree *parser.Token) (*BeccaValue, error) {
@@ -52,9 +52,9 @@ func (interpreter *Interpreter) doGreaterThan(tree *parser.Token) (*BeccaValue, 
 	} else if leftValue.IsInstanceOf(TString) && rightValue.IsInstanceOf(TString) {
 		return interpreter.NewBool(leftValue.Value.(string) > rightValue.Value.(string)), nil
 	} else if leftValue.Type == rightValue.Type {
-		return nil, common.NewException(common.TypeError, fmt.Sprintf("type %v cannot be compared with >", rightValue.Type), tree.Line, tree.Col)
+		return nil, exception.New(exception.TypeError, fmt.Sprintf("type %v cannot be compared with >", rightValue.Type), tree.Line, tree.Col)
 	}
-	return nil, common.NewException(common.TypeError, "attempted to compare incomparable types with >", tree.Line, tree.Col)
+	return nil, exception.New(exception.TypeError, "attempted to compare incomparable types with >", tree.Line, tree.Col)
 }
 
 func (interpreter *Interpreter) doLessThanOrEqualTo(tree *parser.Token) (*BeccaValue, error) {
@@ -98,13 +98,8 @@ func (interpreter *Interpreter) doEqualityCheck(tree *parser.Token) (*BeccaValue
 	if err != nil {
 		return nil, err
 	}
-	if leftValue.Type != rightValue.Type {
-		return interpreter.False(), nil
-	}
-	if leftValue.Value == rightValue.Value {
-		return interpreter.True(), nil
-	}
-	return interpreter.False(), nil
+	areEqual := leftValue.isEqualTo(rightValue)
+	return interpreter.NewBool(areEqual), nil
 }
 
 func (interpreter *Interpreter) doInequalityCheck(tree *parser.Token) (*BeccaValue, error) {
@@ -155,7 +150,7 @@ func (interpreter *Interpreter) doAssigment(tree *parser.Token) (*BeccaValue, er
 	left := tree.Children[0]
 	right := tree.Children[1]
 	if left.Symbol != parser.Name {
-		return nil, common.NewException(common.SyntaxError, "invalid assigment expression at line %v, col %v", tree.Line, tree.Col)
+		return nil, exception.New(exception.SyntaxError, "invalid assigment expression at line %v, col %v", tree.Line, tree.Col)
 	}
 	rightValue, err := interpreter.Evaluate(right)
 	if err != nil {

@@ -1,7 +1,7 @@
 package interpreter
 
 import (
-	"github.com/nicholasbailey/becca/common"
+	"github.com/nicholasbailey/becca/exception"
 	"github.com/nicholasbailey/becca/parser"
 )
 
@@ -11,7 +11,7 @@ func (interpreter *Interpreter) doFor(tree *parser.Token) (*BeccaValue, error) {
 
 func (interpreter *Interpreter) doWhile(tree *parser.Token) (*BeccaValue, error) {
 	if len(tree.Children) != 2 {
-		return nil, common.NewException(common.SyntaxError, "invalid while block", tree.Line, tree.Col)
+		return nil, exception.New(exception.SyntaxError, "invalid while block", tree.Line, tree.Col)
 	}
 	expression := tree.Children[0]
 	block := tree.Children[1]

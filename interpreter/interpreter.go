@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/nicholasbailey/becca/common"
+	"github.com/nicholasbailey/becca/exception"
 	"github.com/nicholasbailey/becca/parser"
 )
 
@@ -20,7 +20,7 @@ type Interpreter struct {
 	CallStack CallStack
 }
 
-func (interpreter *Interpreter) Execute(statements []*parser.Token) (*BeccaValue, common.Exception) {
+func (interpreter *Interpreter) Execute(statements []*parser.Token) (*BeccaValue, exception.Exception) {
 	var value *BeccaValue
 	var err error = nil
 	for _, statement := range statements {
@@ -33,7 +33,7 @@ func (interpreter *Interpreter) Execute(statements []*parser.Token) (*BeccaValue
 	return value, nil
 }
 
-func (interpreter *Interpreter) Evaluate(tree *parser.Token) (*BeccaValue, common.Exception) {
+func (interpreter *Interpreter) Evaluate(tree *parser.Token) (*BeccaValue, exception.Exception) {
 	switch tree.Symbol {
 	case parser.StringLiteral:
 		return interpreter.NewString(tree.Value), nil
@@ -89,7 +89,7 @@ func (interpreter *Interpreter) Evaluate(tree *parser.Token) (*BeccaValue, commo
 		return interpreter.doLessThanOrEqualTo(tree)
 	case ">=":
 		return interpreter.doGreaterThanOrEqualTo(tree)
-	case "while":
+	case parser.While:
 		return interpreter.doWhile(tree)
 	case parser.FunctionDefinition:
 		return interpreter.defineFunction(tree)
@@ -97,7 +97,7 @@ func (interpreter *Interpreter) Evaluate(tree *parser.Token) (*BeccaValue, commo
 		return interpreter.callFunction(tree)
 	case parser.Block:
 		var result *BeccaValue
-		var err common.Exception
+		var err exception.Exception
 		for _, child := range tree.Children {
 			result, err = interpreter.Evaluate(child)
 			if err != nil {
@@ -108,7 +108,7 @@ func (interpreter *Interpreter) Evaluate(tree *parser.Token) (*BeccaValue, commo
 	case "return":
 		stackFrame := interpreter.CallStack.Peek()
 		if stackFrame.FunctionName == "global" {
-			return nil, common.NewException(common.SyntaxError, "illegal return in global scope", tree.Line, tree.Col)
+			return nil, exception.New(exception.SyntaxError, "illegal return in global scope", tree.Line, tree.Col)
 		}
 		child := tree.Children[0]
 		value, err := interpreter.Evaluate(child)
@@ -134,6 +134,16 @@ func (interpreter *Interpreter) DefineGlobal(name string, value *BeccaValue) {
 func (interpreter *Interpreter) DefineMethod(typeName TypeName, methodName string, callable *Callable) {
 	typeVal := interpreter.MustResolveType(typeName)
 	typeVal.Methods[methodName] = callable
+}
+
+func (interpreter *Interpreter) DefineBuiltinMethod(
+	typeName TypeName,
+	methodName string,
+	arity int,
+	builtInFunction BuiltInFunction,
+) {
+	methodFn, _ := interpreter.NewBuiltInFunction(methodName, arity, builtInFunction)
+	interpreter.DefineMethod(TString, methodName, methodFn.Callable)
 }
 
 func NewInterpreter() *Interpreter {
@@ -162,8 +172,7 @@ func NewInterpreter() *Interpreter {
 	interpreter.DefineGlobal("true", interpreter.True())
 	interpreter.DefineGlobal("false", interpreter.False())
 	interpreter.DefineGlobal("null", interpreter.NewNull())
-	printfn, _ := interpreter.NewBuiltInFunction("print", Variadic, Print)
-	interpreter.DefineGlobal("print", printfn)
+	DefineBuiltins(interpreter)
 
 	return interpreter
 }

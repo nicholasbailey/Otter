@@ -3,27 +3,27 @@ package interpreter
 import (
 	"fmt"
 
-	"github.com/nicholasbailey/becca/common"
+	"github.com/nicholasbailey/becca/exception"
 	"github.com/nicholasbailey/becca/parser"
 )
 
 const Variadic = -1
 
-func ConstructFunction(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, common.Exception) {
-	return nil, common.NewException(common.NameError, "function is not callable", 0, 0)
+func ConstructFunction(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+	return nil, exception.New(exception.NameError, "function is not callable", 0, 0)
 }
 
-func ValidateFunctionDefinition(tree *parser.Token) common.Exception {
+func ValidateFunctionDefinition(tree *parser.Token) exception.Exception {
 	if tree == nil {
-		return common.NewException(common.InternalError, "null token passed to NewUserDefinedFunction", 0, 0)
+		return exception.New(exception.InternalError, "null token passed to NewUserDefinedFunction", 0, 0)
 	}
 	if tree.Symbol != parser.FunctionDefinition {
-		return common.NewException(common.InternalError, fmt.Sprintf("non function definition token %v passed to NewUserDefinedFunction", tree.Symbol), tree.Line, tree.Col)
+		return exception.New(exception.InternalError, fmt.Sprintf("non function definition token %v passed to NewUserDefinedFunction", tree.Symbol), tree.Line, tree.Col)
 	}
 	return nil
 }
 
-func (interpreter *Interpreter) NewBuiltInFunction(name string, arity int, builtIn BuiltInFunction) (*BeccaValue, common.Exception) {
+func (interpreter *Interpreter) NewBuiltInFunction(name string, arity int, builtIn BuiltInFunction) (*BeccaValue, exception.Exception) {
 	// TODO - santize inputs
 	callable := &Callable{
 		Name:                name,
@@ -48,7 +48,7 @@ func NewBuiltInConstructor(typeName TypeName, arity int, builtIn BuiltInFunction
 	}
 }
 
-func (interpreter *Interpreter) NewUserDefinedFunction(tree *parser.Token) (*BeccaValue, common.Exception) {
+func (interpreter *Interpreter) NewUserDefinedFunction(tree *parser.Token) (*BeccaValue, exception.Exception) {
 	err := ValidateFunctionDefinition(tree)
 	if err != nil {
 		return nil, err
@@ -70,6 +70,12 @@ func (interpreter *Interpreter) NewUserDefinedFunction(tree *parser.Token) (*Bec
 	}, nil
 }
 
+// Tests if two objects of type 'function' are equal
+func areFunctionsEqual(left *BeccaValue, right *BeccaValue) bool {
+	// TODO - this is not safe long term
+	return left.Callable.Name == right.Callable.Name
+}
+
 func (interpreter *Interpreter) defineFunction(tree *parser.Token) (*BeccaValue, error) {
 
 	udf, err := interpreter.NewUserDefinedFunction(tree)
@@ -84,10 +90,10 @@ func (interpreter *Interpreter) defineFunction(tree *parser.Token) (*BeccaValue,
 	return udf, nil
 }
 
-func (interpreter *Interpreter) invokeCallable(callable *Callable, arguments []*BeccaValue, line int, col int) (*BeccaValue, common.Exception) {
+func (interpreter *Interpreter) invokeCallable(callable *Callable, arguments []*BeccaValue, line int, col int) (*BeccaValue, exception.Exception) {
 	arity := callable.Arity
 	if arity != Variadic && len(arguments) != arity {
-		return nil, common.NewException(common.TypeError, fmt.Sprintf("%v takes exactly %v arguments, found %v", callable.Name, callable.Arity, len(arguments)), line, col)
+		return nil, exception.New(exception.TypeError, fmt.Sprintf("%v takes exactly %v arguments, found %v", callable.Name, callable.Arity, len(arguments)), line, col)
 	}
 	if callable.BuiltInFunction != nil {
 		return callable.BuiltInFunction(interpreter, arguments)
@@ -95,7 +101,7 @@ func (interpreter *Interpreter) invokeCallable(callable *Callable, arguments []*
 	udf := callable.UserDefinedFunction
 	parameters := udf.Children[1].Children
 	if len(parameters) != len(arguments) {
-		return nil, common.NewException(common.TypeError, fmt.Sprintf("%v takes %v arguments, got %v", callable.Name, len(parameters), len(arguments)), line, col)
+		return nil, exception.New(exception.TypeError, fmt.Sprintf("%v takes %v arguments, got %v", callable.Name, len(parameters), len(arguments)), line, col)
 	}
 	// TODO: Could this be cleaner
 	stackFrame := NewCallStackFrame(callable.Name)
@@ -129,7 +135,7 @@ func (interpreter *Interpreter) invokeCallable(callable *Callable, arguments []*
 }
 
 // Should probably not be called call function, as it is also the syntax for other calls
-func (interpreter *Interpreter) callFunction(tree *parser.Token) (*BeccaValue, common.Exception) {
+func (interpreter *Interpreter) callFunction(tree *parser.Token) (*BeccaValue, exception.Exception) {
 	// TODO - check inputs
 	functionName := tree.Children[0]
 	functionValue, err := interpreter.resolveName(functionName)
@@ -138,7 +144,7 @@ func (interpreter *Interpreter) callFunction(tree *parser.Token) (*BeccaValue, c
 	}
 
 	if functionValue.Callable == nil {
-		return nil, common.NewException(common.TypeError, fmt.Sprintf("%v is not callable", functionName.Value), tree.Line, tree.Col)
+		return nil, exception.New(exception.TypeError, fmt.Sprintf("%v is not callable", functionName.Value), tree.Line, tree.Col)
 	}
 
 	// TODO - optimize memory allocation here

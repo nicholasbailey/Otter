@@ -2,12 +2,15 @@ package interpreter
 
 import (
 	"container/list"
+
+	"github.com/nicholasbailey/becca/exception"
 )
 
 type CallStackFrame struct {
 	Scope        Scope
 	FunctionName string
 	ReturnValue  *BeccaValue
+	Exception    *exception.Exception
 }
 
 func NewCallStackFrame(name string) *CallStackFrame {

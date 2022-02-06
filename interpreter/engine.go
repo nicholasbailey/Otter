@@ -3,7 +3,7 @@ package interpreter
 import (
 	"io"
 
-	"github.com/nicholasbailey/becca/common"
+	"github.com/nicholasbailey/becca/exception"
 	"github.com/nicholasbailey/becca/parser"
 )
 
@@ -24,7 +24,7 @@ type Engine struct {
 	Interpreter  Interpreter
 }
 
-func (engine *Engine) Execute(source io.Reader) (*BeccaValue, common.Exception) {
+func (engine *Engine) Execute(source io.Reader) (*BeccaValue, exception.Exception) {
 	lexer := engine.LexerFactory(source)
 	parser := parser.Parser{
 		Lexer: lexer,

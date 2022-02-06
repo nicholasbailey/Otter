@@ -1,8 +1,8 @@
 package interpreter
 
-import "github.com/nicholasbailey/becca/common"
+import "github.com/nicholasbailey/becca/exception"
 
-func ConstructNull(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, common.Exception) {
+func ConstructNull(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
 	return interpreter.NewNull(), nil
 }
 

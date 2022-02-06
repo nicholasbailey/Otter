@@ -1,13 +1,13 @@
 package interpreter
 
 import (
-	"github.com/nicholasbailey/becca/common"
+	"github.com/nicholasbailey/becca/exception"
 	"github.com/nicholasbailey/becca/parser"
 )
 
 func (interpreter *Interpreter) doIf(tree *parser.Token) (*BeccaValue, error) {
 	if len(tree.Children) < 2 {
-		common.NewException(common.SyntaxError, "invalid if expression", tree.Line, tree.Col)
+		exception.New(exception.SyntaxError, "invalid if expression", tree.Line, tree.Col)
 	}
 	condition := tree.Children[0]
 	conditionValue, err := interpreter.Evaluate(condition)

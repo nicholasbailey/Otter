@@ -1,6 +1,6 @@
 package interpreter
 
-import "github.com/nicholasbailey/becca/common"
+import "github.com/nicholasbailey/becca/exception"
 
 type TypeName string
 
@@ -14,12 +14,12 @@ const (
 	TType     TypeName = "type"
 )
 
-func ConstructType(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, common.Exception) {
+func ConstructType(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
 	v := values[0]
 	return v.Type, nil
 }
 
-func (interpreter *Interpreter) ResolveType(typeName TypeName) (*BeccaValue, common.Exception) {
+func (interpreter *Interpreter) ResolveType(typeName TypeName) (*BeccaValue, exception.Exception) {
 	val, _ := interpreter.CallStack.ResolveVariable(string(typeName))
 	// TODO - error handling and make this more efficient
 	return val, nil
@@ -33,7 +33,7 @@ func (interpreter *Interpreter) MustResolveType(typeName TypeName) *BeccaValue {
 	return val
 }
 
-func (interpreter *Interpreter) DefineType(t TypeName, constructor *Callable) (*BeccaValue, common.Exception) {
+func (interpreter *Interpreter) DefineType(t TypeName, constructor *Callable) (*BeccaValue, exception.Exception) {
 	value := &BeccaValue{
 		Type:     interpreter.MustResolveType(TType),
 		Value:    t,
@@ -49,6 +49,12 @@ func (interpreter *Interpreter) DefineType(t TypeName, constructor *Callable) (*
 
 func (value *BeccaValue) IsInstanceOf(typeName TypeName) bool {
 	return value.Type.Value == typeName
+}
+
+// Tests if two objects of type 'type' are equal
+func areTypesEqual(left *BeccaValue, right *BeccaValue) bool {
+	// TODO - this is not safe long term
+	return left.Value == right.Value
 }
 
 func DefineTypeType(interpreter *Interpreter) {

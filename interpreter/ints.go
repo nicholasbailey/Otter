@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/nicholasbailey/becca/common"
+	"github.com/nicholasbailey/becca/exception"
 )
 
-func ConstructInt(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, common.Exception) {
+func ConstructInt(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
 	v := values[0]
 	if v.IsInstanceOf(TInt) {
 		return v, nil
@@ -19,7 +19,7 @@ func ConstructInt(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, 
 		return interpreter.NewInt(parsedInt), nil
 	} else {
 		// TODO - make lines and cols work
-		return nil, common.NewException(common.TypeError, fmt.Sprintf("cannot convert %v to int", v.Type.Value), 0, 0)
+		return nil, exception.New(exception.TypeError, fmt.Sprintf("cannot convert %v to int", v.Type.Value), 0, 0)
 	}
 }
 

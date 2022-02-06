@@ -1,6 +1,6 @@
 package interpreter
 
-import "github.com/nicholasbailey/becca/common"
+import "github.com/nicholasbailey/becca/exception"
 
 func (interpreter *Interpreter) NewBool(x bool) *BeccaValue {
 	return &BeccaValue{
@@ -17,7 +17,7 @@ func (interpreter *Interpreter) True() *BeccaValue {
 	return interpreter.NewBool(true)
 }
 
-func ConstructBool(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, common.Exception) {
+func ConstructBool(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
 	v := values[0]
 	return interpreter.Truthiness(v), nil
 }
