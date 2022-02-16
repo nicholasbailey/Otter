@@ -4,21 +4,21 @@
 aString = "ABCDEFGHI";
 aNewString = "";
 for char in aString {
-    aNewString = aNewString + " " + string(char);
+    aNewString = aNewString + " " + char;
 }
 
 assertEqual(aNewString, " A B C D E F G H I");
 
  // Arrays!
 
-anArray = Array(1, 2, 3, 4, 5, 6, 7);
-aNewArray = Array();
+// anArray = Array(1, 2, 3, 4, 5, 6, 7);
+// aNewArray = Array();
 
-for num in anArray {
-    aNewArray.append(num * num);
-}
+// for num in anArray {
+//    aNewArray.append(num * num);
+//}
 
-assertDeepEqual(aNewArray, Array(1, 4, 9, 16, 25, 36, 49));
+//assertDeepEqual(aNewArray, Array(1, 4, 9, 16, 25, 36, 49));
 
 // Ranges
 // anotherArray = Array();

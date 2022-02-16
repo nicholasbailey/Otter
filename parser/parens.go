@@ -8,7 +8,7 @@ import (
 
 func (spec *LanguageSpecification) DefineParens(openParens Symbol, closeParens Symbol) {
 
-	nud := func(t *Token, p *Parser) (*Token, exception.Exception) {
+	nud := func(t *Token, p *TDOPParser) (*Token, exception.Exception) {
 		expressionToken, err := p.Expression(0)
 		if err != nil {
 			return nil, err
@@ -25,7 +25,7 @@ func (spec *LanguageSpecification) DefineParens(openParens Symbol, closeParens S
 	spec.Define(openParens, 0, 0, nud, nil, nil)
 	spec.DefineValue(closeParens)
 
-	openParensLed := func(right *Token, parser *Parser, left *Token) (*Token, exception.Exception) {
+	openParensLed := func(right *Token, parser *TDOPParser, left *Token) (*Token, exception.Exception) {
 		if left.Symbol != Name && left.Symbol != Symbol("(") {
 			return nil, fmt.Errorf("syntaxerror: unexpected ( at line %v, col %v", right.Line, right.Col)
 		}

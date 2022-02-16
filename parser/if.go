@@ -6,7 +6,7 @@ import "github.com/nicholasbailey/becca/exception"
 
 func (spec *LanguageSpecification) DefineIf(ifKeyword Symbol, elseKeyword Symbol) {
 
-	ifStd := func(token *Token, parser *Parser) (*Token, exception.Exception) {
+	ifStd := func(token *Token, parser *TDOPParser) (*Token, exception.Exception) {
 		expression, err := parser.Expression(0)
 		if err != nil {
 			return nil, err
@@ -47,7 +47,7 @@ func (spec *LanguageSpecification) DefineIf(ifKeyword Symbol, elseKeyword Symbol
 		return token, nil
 	}
 
-	ifNud := func(token *Token, parser *Parser) (*Token, exception.Exception) {
+	ifNud := func(token *Token, parser *TDOPParser) (*Token, exception.Exception) {
 		expression, err := parser.Expression(0)
 		if err != nil {
 			return nil, err

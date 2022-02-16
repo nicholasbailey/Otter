@@ -7,7 +7,7 @@ import (
 )
 
 func (spec *LanguageSpecification) DefineFunctionDefinition(defSymbol Symbol) {
-	defStd := func(token *Token, parser *Parser) (*Token, exception.Exception) {
+	defStd := func(token *Token, parser *TDOPParser) (*Token, exception.Exception) {
 		token.Symbol = FunctionDefinition
 		functionName, err := parser.Next()
 		if err != nil {
@@ -85,7 +85,7 @@ func (spec *LanguageSpecification) DefineFunctionDefinition(defSymbol Symbol) {
 }
 
 func (spec *LanguageSpecification) DefineReturn(returnSymbol Symbol) {
-	returnStd := func(token *Token, parser *Parser) (*Token, exception.Exception) {
+	returnStd := func(token *Token, parser *TDOPParser) (*Token, exception.Exception) {
 		expression, err := parser.Expression(0)
 		if err != nil {
 			return nil, err

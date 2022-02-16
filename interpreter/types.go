@@ -5,14 +5,15 @@ import "github.com/nicholasbailey/becca/exception"
 type TypeName string
 
 const (
-	TString   TypeName = "string"
-	TInt      TypeName = "int"
-	TBool     TypeName = "bool"
-	TFloat    TypeName = "float"
-	TNull     TypeName = "null"
-	TFunction TypeName = "function"
-	TType     TypeName = "type"
-	TArray    TypeName = "Array"
+	TString         TypeName = "string"
+	TInt            TypeName = "int"
+	TBool           TypeName = "bool"
+	TFloat          TypeName = "float"
+	TNull           TypeName = "null"
+	TFunction       TypeName = "function"
+	TType           TypeName = "type"
+	TArray          TypeName = "Array"
+	TStringIterator TypeName = "StringIterator"
 )
 
 func ConstructType(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {

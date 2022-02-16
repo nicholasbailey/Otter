@@ -44,9 +44,9 @@ const (
 	Assignment         Symbol = "(ASSIGNMENT)"
 )
 
-type NudFunction func(right *Token, parser *Parser) (*Token, exception.Exception)
-type LedFunction func(right *Token, parser *Parser, left *Token) (*Token, exception.Exception)
-type StdFunction func(*Token, *Parser) (*Token, exception.Exception)
+type NudFunction func(right *Token, parser *TDOPParser) (*Token, exception.Exception)
+type LedFunction func(right *Token, parser *TDOPParser, left *Token) (*Token, exception.Exception)
+type StdFunction func(*Token, *TDOPParser) (*Token, exception.Exception)
 
 // The 'Token' is the core data type of the parser
 // A token is overloaded - it's both a token emitted

@@ -63,7 +63,7 @@ func (spec *LanguageSpecification) IsAnyBlockEnd(symbol Symbol) bool {
 func (spec *LanguageSpecification) DefineBlock(startSymbol Symbol, endSymbol Symbol) {
 	spec.DefineEmpty(endSymbol)
 
-	std := func(token *Token, parser *Parser) (*Token, exception.Exception) {
+	std := func(token *Token, parser *TDOPParser) (*Token, exception.Exception) {
 		statements, err := parser.Statements()
 		if err != nil {
 			return nil, err
@@ -125,7 +125,9 @@ func (spec *LanguageSpecification) IsIdentifierCharacter(char rune) bool {
 	if found {
 		return false
 	} else {
-		return !unicode.IsSpace(char)
+		// TODO - unhardcode the internal temporary variable
+		// name symbol
+		return !unicode.IsSpace(char) && char != '~'
 	}
 }
 
@@ -210,21 +212,22 @@ func (spec *LanguageSpecification) DefineQuotes(openQuote rune, closeQuote rune,
 	spec.DefineValue(literalType)
 }
 
-func (spec *LanguageSpecification) DefineInfix(symbol Symbol, bindingPower int) {
-	led := func(t *Token, parser *Parser, left *Token) (*Token, exception.Exception) {
+func (spec *LanguageSpecification) DefineInfix(symbol Symbol, newSymbol Symbol, bindingPower int) {
+	led := func(t *Token, parser *TDOPParser, left *Token) (*Token, exception.Exception) {
 		t.Children = append(t.Children, left)
 		exprResult, err := parser.Expression(t.BindingPower)
 		if err != nil {
 			return nil, err
 		}
 		t.Children = append(t.Children, exprResult)
+		t.Symbol = newSymbol
 		return t, nil
 	}
 	spec.Define(symbol, bindingPower, 2, nil, led, nil)
 }
 
 func (spec *LanguageSpecification) DefinePrefix(symbol Symbol, bindingPower int) {
-	nud := func(t *Token, parser *Parser) (*Token, exception.Exception) {
+	nud := func(t *Token, parser *TDOPParser) (*Token, exception.Exception) {
 		expResult, err := parser.Expression(bindingPower)
 		if err != nil {
 			return nil, err
@@ -237,7 +240,7 @@ func (spec *LanguageSpecification) DefinePrefix(symbol Symbol, bindingPower int)
 
 // come up with a better name for this
 func (spec *LanguageSpecification) DefineValue(symbol Symbol) {
-	nud := func(t *Token, p *Parser) (*Token, exception.Exception) {
+	nud := func(t *Token, p *TDOPParser) (*Token, exception.Exception) {
 		return t, nil
 	}
 	spec.Define(symbol, 0, 0, nud, nil, nil)

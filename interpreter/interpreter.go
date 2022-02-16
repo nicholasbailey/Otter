@@ -69,7 +69,7 @@ func (interpreter *Interpreter) Evaluate(tree *parser.Token) (*BeccaValue, excep
 		return interpreter.doInequalityCheck(tree)
 	case "==":
 		return interpreter.doEqualityCheck(tree)
-	case "=":
+	case parser.Assignment:
 		return interpreter.doAssigment(tree)
 	case "+":
 		return interpreter.doAddition(tree)
@@ -143,7 +143,7 @@ func (interpreter *Interpreter) DefineBuiltinMethod(
 	builtInFunction BuiltInFunction,
 ) {
 	methodFn, _ := interpreter.NewBuiltInFunction(methodName, arity, builtInFunction)
-	interpreter.DefineMethod(TString, methodName, methodFn.Callable)
+	interpreter.DefineMethod(typeName, methodName, methodFn.Callable)
 }
 
 func NewInterpreter() *Interpreter {
@@ -155,7 +155,7 @@ func NewInterpreter() *Interpreter {
 	DefineTypeType(interpreter)
 
 	// Define built in types
-	DefineStringType(interpreter)
+	DefineStringTypes(interpreter)
 	// DefineIntType(interpreter)
 	// DefineBoolType(interpreter)
 	// DefineFloatType(interpreter)

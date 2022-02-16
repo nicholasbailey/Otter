@@ -9,27 +9,22 @@ import (
 
 func NewEngine() *Engine {
 	interpreter := NewInterpreter()
-	languageSpec := parser.NewBeccaLanguage()
-	lexerFactory := func(reader io.Reader) *parser.Lexer {
-		return parser.NewLexer(reader, languageSpec)
+	parserFactory := func(source io.Reader) parser.Parser {
+		return parser.NewParser(source)
 	}
 	return &Engine{
-		LexerFactory: lexerFactory,
-		Interpreter:  *interpreter,
+		ParserFactory: parserFactory,
+		Interpreter:   *interpreter,
 	}
 }
 
 type Engine struct {
-	LexerFactory func(io.Reader) *parser.Lexer
-	Interpreter  Interpreter
+	ParserFactory func(io.Reader) parser.Parser
+	Interpreter   Interpreter
 }
 
 func (engine *Engine) Execute(source io.Reader) (*BeccaValue, exception.Exception) {
-	lexer := engine.LexerFactory(source)
-	parser := parser.Parser{
-		Lexer: lexer,
-	}
-
+	parser := engine.ParserFactory(source)
 	trees, err := parser.Statements()
 	if err != nil {
 		return nil, err

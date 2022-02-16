@@ -41,5 +41,3 @@ assertEqual("Hello".toUpperCase(), "HELLO");
 // Replacement
 replacement = "Shadow is a bad cat".replace("bad", "good").replace("cat", "dog").replace("Shadow", "McDuff");
 assertEqual(replacement, "McDuff is a good dog");
-
-// Containment

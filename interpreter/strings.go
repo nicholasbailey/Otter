@@ -8,9 +8,9 @@ import (
 )
 
 func ConstructString(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
-	if len(values) > 1 || len(values) == 0 {
+	if len(values) != 1 {
 		// TODO - get call stack info for builtins
-		return nil, exception.New("ArgumentError", "", 0, 0)
+		return nil, exception.New(exception.ArgumentError, "", 0, 0)
 	}
 	value := values[0]
 	var strVal string
@@ -83,12 +83,66 @@ func StringReplace(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue,
 	return interpreter.NewString(newStr), nil
 }
 
-func DefineStringType(interpreter *Interpreter) {
+func StringIterator(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+	return ConstructStringIterator(interpreter, values)
+}
+
+type StringIteratorInternals struct {
+	String string
+	Index  int
+}
+
+func ConstructStringIterator(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+	if len(values) > 1 || len(values) == 0 {
+		// TODO - get call stack info for builtins
+		return nil, exception.New(exception.ArgumentError, "", 0, 0)
+	}
+	value := values[0]
+	if !value.IsInstanceOf(TString) {
+		return nil, exception.New(exception.ArgumentError, "argument str to constructor StringIterator must be a string", 0, 0)
+	}
+	iteratorValue := StringIteratorInternals{
+		String: value.Value.(string),
+		Index:  0,
+	}
+	return &BeccaValue{
+		Type:  interpreter.MustResolveType(TStringIterator),
+		Value: &iteratorValue,
+	}, nil
+}
+
+func StringIteratorHasNext(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+	iterator := values[0]
+	internals := iterator.Value.(*StringIteratorInternals)
+	if internals.Index >= len(internals.String) {
+		return interpreter.False(), nil
+	} else {
+		return interpreter.True(), nil
+	}
+}
+
+func StringIteratorGetNext(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+	iterator := values[0]
+	internals := iterator.Value.(*StringIteratorInternals)
+	if internals.Index >= len(internals.String) {
+		return nil, exception.New(exception.IterationError, "iterable has no more elements", 0, 0)
+	}
+	value := string([]rune(internals.String)[internals.Index])
+	internals.Index = internals.Index + 1
+	return interpreter.NewString(value), nil
+}
+
+func DefineStringTypes(interpreter *Interpreter) {
 
 	interpreter.DefineType(TString, NewBuiltInConstructor(TString, 1, ConstructString))
 	interpreter.DefineBuiltinMethod(TString, "length", 1, StringLength)
 	interpreter.DefineBuiltinMethod(TString, "toUpperCase", 1, StringToUpperCase)
 	interpreter.DefineBuiltinMethod(TString, "toLowerCase", 1, StringToLowerCase)
 	interpreter.DefineBuiltinMethod(TString, "replace", 3, StringReplace)
+	interpreter.DefineBuiltinMethod(TString, "iterator", 1, StringIterator)
+
+	interpreter.DefineType(TStringIterator, NewBuiltInConstructor(TStringIterator, 1, ConstructStringIterator))
+	interpreter.DefineBuiltinMethod(TStringIterator, "hasNext", 1, StringIteratorHasNext)
+	interpreter.DefineBuiltinMethod(TStringIterator, "getNext", 1, StringIteratorGetNext)
 
 }

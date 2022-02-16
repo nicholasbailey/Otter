@@ -18,6 +18,7 @@ const (
 	MethodError       ExceptionType = "MethodError"
 	ArgumentError     ExceptionType = "ArgumentError"
 	IndexError        ExceptionType = "IndexError"
+	IterationError    ExceptionType = "IterationError"
 )
 
 func New(

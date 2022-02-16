@@ -19,10 +19,22 @@ func main() {
 	}
 	defer file.Close()
 
-	if os.Args[1] == "-d" {
+	if os.Args[1] == "--raw-syntax" {
 		spec := parser.NewBeccaLanguage()
 		lexer := parser.NewLexer(file, spec)
-		parser := parser.NewParser(lexer)
+		parser := parser.NewTDOPParser(lexer)
+		tokens, err := parser.Statements()
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			os.Exit(1)
+		} else {
+			for _, token := range tokens {
+				fmt.Printf("%v\n", token.TreeString(0))
+			}
+			os.Exit(0)
+		}
+	} else if os.Args[1] == "--unsweetened-syntax" {
+		parser := parser.NewParser(file)
 		tokens, err := parser.Statements()
 		if err != nil {
 			fmt.Printf("%v\n", err)

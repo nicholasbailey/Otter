@@ -3,7 +3,7 @@ package parser
 import "github.com/nicholasbailey/becca/exception"
 
 func (spec *LanguageSpecification) DefineAccess(accessSymbol Symbol) {
-	dotLed := func(token *Token, parser *Parser, left *Token) (*Token, exception.Exception) {
+	dotLed := func(token *Token, parser *TDOPParser, left *Token) (*Token, exception.Exception) {
 		next, err := parser.Peek()
 		if err != nil {
 			return nil, err

@@ -7,7 +7,7 @@ import (
 )
 
 func (spec *LanguageSpecification) DefineForIn(forKeyword Symbol, inKeyword Symbol) {
-	forStd := func(token *Token, parser *Parser) (*Token, exception.Exception) {
+	forStd := func(token *Token, parser *TDOPParser) (*Token, exception.Exception) {
 		loopVarToken, err := parser.Next()
 		if err != nil {
 			return nil, err
@@ -44,7 +44,7 @@ func (spec *LanguageSpecification) DefineForIn(forKeyword Symbol, inKeyword Symb
 }
 
 func (spec *LanguageSpecification) DefineWhile(whileKeyword Symbol) {
-	whileStd := func(token *Token, parser *Parser) (*Token, exception.Exception) {
+	whileStd := func(token *Token, parser *TDOPParser) (*Token, exception.Exception) {
 		expression, err := parser.Expression(0)
 		if err != nil {
 			return nil, err
