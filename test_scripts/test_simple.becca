@@ -23,5 +23,3 @@ assertEqual(i, 9)
 // Function calls
 sum = x + y;
 print(x, y, sum);
-
-print("Simple Tests Passed!")
