@@ -16,6 +16,8 @@ const (
 	NameError         ExceptionType = "NameError"
 	InternalError     ExceptionType = "InternalError"
 	MethodError       ExceptionType = "MethodError"
+	ArgumentError     ExceptionType = "ArgumentError"
+	IndexError        ExceptionType = "IndexError"
 )
 
 func New(
