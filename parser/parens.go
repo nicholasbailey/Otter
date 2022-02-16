@@ -13,7 +13,7 @@ func (spec *LanguageSpecification) DefineParens(openParens Symbol, closeParens S
 		if err != nil {
 			return nil, err
 		}
-		next, err := p.Lexer.Next()
+		next, err := p.Next()
 		if err != nil {
 			return nil, err
 		}
@@ -30,7 +30,7 @@ func (spec *LanguageSpecification) DefineParens(openParens Symbol, closeParens S
 			return nil, fmt.Errorf("syntaxerror: unexpected ( at line %v, col %v", right.Line, right.Col)
 		}
 		right.Children = append(right.Children, left)
-		t, err := parser.Lexer.Peek()
+		t, err := parser.Peek()
 		if err != nil {
 			return nil, err
 		}
@@ -41,19 +41,19 @@ func (spec *LanguageSpecification) DefineParens(openParens Symbol, closeParens S
 					return nil, err
 				}
 				right.Children = append(right.Children, expressionResult)
-				right, err := parser.Lexer.Peek()
+				right, err := parser.Peek()
 				if err != nil {
 					return nil, err
 				}
 				if right.Symbol != "," {
 					break
 				}
-				_, err = parser.Lexer.Next()
+				_, err = parser.Next()
 				if err != nil {
 					return nil, err
 				}
 			}
-			close, err := parser.Lexer.Next()
+			close, err := parser.Next()
 			if err != nil {
 				return nil, err
 			}
@@ -61,7 +61,7 @@ func (spec *LanguageSpecification) DefineParens(openParens Symbol, closeParens S
 				return nil, fmt.Errorf("syntaxerror: unterminated parentheses with symbol %v at line %v, col %v", close.Value, close.Line, close.Col)
 			}
 		} else {
-			_, err = parser.Lexer.Next()
+			_, err = parser.Next()
 			if err != nil {
 				return nil, err
 			}

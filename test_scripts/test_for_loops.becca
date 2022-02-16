@@ -1,0 +1,61 @@
+// Many things can be iterated over 
+
+// Strings
+aString = "ABCDEFGHI";
+aNewString = "";
+for char in aString {
+    aNewString = aNewString + " " + string(char);
+}
+
+assertEqual(aNewString, " A B C D E F G H I");
+
+ // Arrays!
+
+anArray = Array(1, 2, 3, 4, 5, 6, 7);
+aNewArray = Array();
+
+for num in anArray {
+    aNewArray.append(num * num);
+}
+
+assertDeepEqual(aNewArray, Array(1, 4, 9, 16, 25, 36, 49));
+
+// Ranges
+// anotherArray = Array();
+//for num in Range(0, 10) {
+//    anotherArray.append(num);
+//}
+
+//assertDeepEqual(anotherArray, Array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9))
+
+// Maps
+
+//aMap = Map(
+//    ("A", 1),
+//    ("B", 2),
+//    ("C", 3)
+//);
+
+//for key, value in aMap {
+//
+//}
+
+
+// For loops also support an 'index' syntax
+
+//yetAnotherString = "";
+//for i, num in aString {
+//
+//}
+
+// for x in y {
+//    
+// }
+
+// iterator = x.iterator
+// while iterator.hasNext {
+//   x = iterator.next()
+//   block
+//   
+// }
+// 

@@ -9,7 +9,7 @@ import (
 func (spec *LanguageSpecification) DefineFunctionDefinition(defSymbol Symbol) {
 	defStd := func(token *Token, parser *Parser) (*Token, exception.Exception) {
 		token.Symbol = FunctionDefinition
-		functionName, err := parser.Lexer.Next()
+		functionName, err := parser.Next()
 		if err != nil {
 			return nil, err
 		}
@@ -18,7 +18,7 @@ func (spec *LanguageSpecification) DefineFunctionDefinition(defSymbol Symbol) {
 		}
 		token.Children = append(token.Children, functionName)
 
-		openParens, err := parser.Lexer.Next()
+		openParens, err := parser.Next()
 		if err != nil {
 			return nil, err
 		}
@@ -26,7 +26,7 @@ func (spec *LanguageSpecification) DefineFunctionDefinition(defSymbol Symbol) {
 			return nil, exception.New(exception.SyntaxError, fmt.Sprintf("expected (, got %v", openParens.Value), openParens.Line, openParens.Col)
 		}
 		parameters := []*Token{}
-		next, err := parser.Lexer.Next()
+		next, err := parser.Next()
 		if err != nil {
 			return nil, err
 		}
@@ -36,23 +36,23 @@ func (spec *LanguageSpecification) DefineFunctionDefinition(defSymbol Symbol) {
 					return nil, err
 				}
 				parameters = append(parameters, next)
-				further, err := parser.Lexer.Peek()
+				further, err := parser.Peek()
 				if err != nil {
 					return nil, err
 				}
 				if further.Symbol != "," {
 					break
 				}
-				_, err = parser.Lexer.Next()
+				_, err = parser.Next()
 				if err != nil {
 					return nil, err
 				}
-				next, err = parser.Lexer.Next()
+				next, err = parser.Next()
 				if err != nil {
 					return nil, err
 				}
 			}
-			close, err := parser.Lexer.Next()
+			close, err := parser.Next()
 			if err != nil {
 				return nil, err
 			}
@@ -60,7 +60,7 @@ func (spec *LanguageSpecification) DefineFunctionDefinition(defSymbol Symbol) {
 				return nil, fmt.Errorf("syntaxerror: unterminated parentheses with symbol %v at line %v, col %v", close.Value, close.Line, close.Col)
 			}
 		} else {
-			_, err = parser.Lexer.Next()
+			_, err = parser.Next()
 			if err != nil {
 				return nil, err
 			}
@@ -92,12 +92,12 @@ func (spec *LanguageSpecification) DefineReturn(returnSymbol Symbol) {
 		}
 		token.Children = append(token.Children, expression)
 		// Hack, something is wonky here
-		next, err := parser.Lexer.Peek()
+		next, err := parser.Peek()
 		if err != nil {
 			return nil, err
 		}
-		if parser.Lexer.IsStatementTerminator(next) {
-			_, err = parser.Lexer.Next()
+		if parser.IsStatementTerminator(next) {
+			_, err = parser.Next()
 			if err != nil {
 				return nil, err
 			}

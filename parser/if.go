@@ -18,14 +18,14 @@ func (spec *LanguageSpecification) DefineIf(ifKeyword Symbol, elseKeyword Symbol
 			return nil, err
 		}
 		token.Children = append(token.Children, block)
-		next, err := parser.Lexer.Peek()
+		next, err := parser.Peek()
 		if err != nil {
 			return nil, err
 		}
 		// TODO: make this symbol references
 		if next.Value == string(elseKeyword) {
-			parser.Lexer.Next()
-			next, err := parser.Lexer.Peek()
+			parser.Next()
+			next, err := parser.Peek()
 			if err != nil {
 				return nil, err
 			}
@@ -59,14 +59,14 @@ func (spec *LanguageSpecification) DefineIf(ifKeyword Symbol, elseKeyword Symbol
 			return nil, err
 		}
 		token.Children = append(token.Children, block)
-		next, err := parser.Lexer.Peek()
+		next, err := parser.Peek()
 		if err != nil {
 			return nil, err
 		}
 		// TODO: make this symbol references
 		if next.Value == string(elseKeyword) {
-			parser.Lexer.Next()
-			next, err := parser.Lexer.Peek()
+			parser.Next()
+			next, err := parser.Peek()
 			if err != nil {
 				return nil, err
 			}

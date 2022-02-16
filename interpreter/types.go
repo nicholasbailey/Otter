@@ -12,6 +12,7 @@ const (
 	TNull     TypeName = "null"
 	TFunction TypeName = "function"
 	TType     TypeName = "type"
+	TArray    TypeName = "Array"
 )
 
 func ConstructType(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {

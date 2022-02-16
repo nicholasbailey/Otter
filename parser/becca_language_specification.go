@@ -5,6 +5,7 @@ func NewBeccaLanguage() *LanguageSpecification {
 	spec := NewLanguage()
 
 	spec.DefineWhile("while")
+	spec.DefineForIn("for", "in")
 	spec.DefineIf("if", "else")
 	spec.DefineAccess(".")
 	spec.DefineComment("//")

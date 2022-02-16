@@ -16,10 +16,12 @@ if (x == 0) {
 // While loops
 i = 0;
 while i < 10 {
-    print(i);
     i = i + 1;
 }
+assertEqual(i, 9)
 
 // Function calls
 sum = x + y;
 print(x, y, sum);
+
+print("Simple Tests Passed!")

@@ -16,6 +16,18 @@ type Parser struct {
 	Lexer *Lexer
 }
 
+func (parser *Parser) IsStatementTerminator(token *Token) bool {
+	return parser.Lexer.IsStatementTerminator(token)
+}
+
+func (parser *Parser) Next() (*Token, error) {
+	return parser.Lexer.Next()
+}
+
+func (parser *Parser) Peek() (*Token, error) {
+	return parser.Lexer.Peek()
+}
+
 func (parser *Parser) Block() (*Token, error) {
 	token, err := parser.Lexer.Next()
 	if err != nil {

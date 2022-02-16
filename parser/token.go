@@ -39,6 +39,9 @@ const (
 	FunctionInvocation Symbol = "(FUNCTIONINVOCATION)"
 	Access             Symbol = "(ACCESS)"
 	While              Symbol = "(WHILE)"
+	Comment            Symbol = "(COMMENT)"
+	ForIn              Symbol = "(FORIN)"
+	Assignment         Symbol = "(ASSIGNMENT)"
 )
 
 type NudFunction func(right *Token, parser *Parser) (*Token, exception.Exception)
