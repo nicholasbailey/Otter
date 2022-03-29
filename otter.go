@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/nicholasbailey/becca/interpreter"
-	"github.com/nicholasbailey/becca/parser"
+	"github.com/nicholasbailey/otter/interpreter"
+	"github.com/nicholasbailey/otter/parser"
 )
 
 func main() {
@@ -20,7 +20,7 @@ func main() {
 	defer file.Close()
 
 	if os.Args[1] == "--raw-syntax" {
-		spec := parser.NewBeccaLanguage()
+		spec := parser.NewOtterLanguage()
 		lexer := parser.NewLexer(file, spec)
 		parser := parser.NewTDOPParser(lexer)
 		tokens, err := parser.Statements()

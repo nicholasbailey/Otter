@@ -3,11 +3,11 @@ package interpreter
 import (
 	"fmt"
 
-	"github.com/nicholasbailey/becca/exception"
-	"github.com/nicholasbailey/becca/parser"
+	"github.com/nicholasbailey/otter/exception"
+	"github.com/nicholasbailey/otter/parser"
 )
 
-func resolveBinaryOperands(interpreter *Interpreter, tree *parser.Token) (*BeccaValue, *BeccaValue, error) {
+func resolveBinaryOperands(interpreter *Interpreter, tree *parser.Token) (*OtterValue, *OtterValue, error) {
 	if len(tree.Children) != 2 {
 		return nil, nil, exception.New(exception.SyntaxError, fmt.Sprintf("invalid symbol %v", tree.Value), tree.Line, tree.Col)
 	}
@@ -23,7 +23,7 @@ func resolveBinaryOperands(interpreter *Interpreter, tree *parser.Token) (*Becca
 	}
 }
 
-func (interpreter *Interpreter) doLessThan(tree *parser.Token) (*BeccaValue, error) {
+func (interpreter *Interpreter) doLessThan(tree *parser.Token) (*OtterValue, error) {
 	leftValue, rightValue, err := resolveBinaryOperands(interpreter, tree)
 	if err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func (interpreter *Interpreter) doLessThan(tree *parser.Token) (*BeccaValue, err
 	return nil, exception.New(exception.TypeError, "attempted to compare incomparable types with <", tree.Line, tree.Col)
 }
 
-func (interpreter *Interpreter) doGreaterThan(tree *parser.Token) (*BeccaValue, error) {
+func (interpreter *Interpreter) doGreaterThan(tree *parser.Token) (*OtterValue, error) {
 	leftValue, rightValue, err := resolveBinaryOperands(interpreter, tree)
 	if err != nil {
 		return nil, err
@@ -57,7 +57,7 @@ func (interpreter *Interpreter) doGreaterThan(tree *parser.Token) (*BeccaValue, 
 	return nil, exception.New(exception.TypeError, "attempted to compare incomparable types with >", tree.Line, tree.Col)
 }
 
-func (interpreter *Interpreter) doLessThanOrEqualTo(tree *parser.Token) (*BeccaValue, error) {
+func (interpreter *Interpreter) doLessThanOrEqualTo(tree *parser.Token) (*OtterValue, error) {
 	equal, err := interpreter.doEqualityCheck(tree)
 	if err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func (interpreter *Interpreter) doLessThanOrEqualTo(tree *parser.Token) (*BeccaV
 	return interpreter.False(), nil
 }
 
-func (interpreter *Interpreter) doGreaterThanOrEqualTo(tree *parser.Token) (*BeccaValue, error) {
+func (interpreter *Interpreter) doGreaterThanOrEqualTo(tree *parser.Token) (*OtterValue, error) {
 	equal, err := interpreter.doEqualityCheck(tree)
 	if err != nil {
 		return nil, err
@@ -93,7 +93,7 @@ func (interpreter *Interpreter) doGreaterThanOrEqualTo(tree *parser.Token) (*Bec
 	return interpreter.False(), nil
 }
 
-func (interpreter *Interpreter) doEqualityCheck(tree *parser.Token) (*BeccaValue, error) {
+func (interpreter *Interpreter) doEqualityCheck(tree *parser.Token) (*OtterValue, error) {
 	leftValue, rightValue, err := resolveBinaryOperands(interpreter, tree)
 	if err != nil {
 		return nil, err
@@ -102,7 +102,7 @@ func (interpreter *Interpreter) doEqualityCheck(tree *parser.Token) (*BeccaValue
 	return interpreter.NewBool(areEqual), nil
 }
 
-func (interpreter *Interpreter) doInequalityCheck(tree *parser.Token) (*BeccaValue, error) {
+func (interpreter *Interpreter) doInequalityCheck(tree *parser.Token) (*OtterValue, error) {
 	result, err := interpreter.doEqualityCheck(tree)
 	if err != nil {
 		return nil, err
@@ -114,7 +114,7 @@ func (interpreter *Interpreter) doInequalityCheck(tree *parser.Token) (*BeccaVal
 	}
 }
 
-func (interpreter *Interpreter) doAnd(tree *parser.Token) (*BeccaValue, error) {
+func (interpreter *Interpreter) doAnd(tree *parser.Token) (*OtterValue, error) {
 
 	leftValue, rightValue, err := resolveBinaryOperands(interpreter, tree)
 
@@ -130,7 +130,7 @@ func (interpreter *Interpreter) doAnd(tree *parser.Token) (*BeccaValue, error) {
 	return rightValue, nil
 }
 
-func (interpreter *Interpreter) doOr(tree *parser.Token) (*BeccaValue, error) {
+func (interpreter *Interpreter) doOr(tree *parser.Token) (*OtterValue, error) {
 	leftValue, rightValue, err := resolveBinaryOperands(interpreter, tree)
 	if err != nil {
 		return nil, err
@@ -142,7 +142,7 @@ func (interpreter *Interpreter) doOr(tree *parser.Token) (*BeccaValue, error) {
 	return rightValue, nil
 }
 
-func (interpreter *Interpreter) doAssigment(tree *parser.Token) (*BeccaValue, error) {
+func (interpreter *Interpreter) doAssigment(tree *parser.Token) (*OtterValue, error) {
 	if len(tree.Children) != 2 {
 		// TODO make more detailed
 		return nil, fmt.Errorf("syntaxerror: invald assignment expression at line %v, col %v", tree.Line, tree.Col)
@@ -165,7 +165,7 @@ func (interpreter *Interpreter) doAssigment(tree *parser.Token) (*BeccaValue, er
 	return rightValue, nil
 }
 
-func (interpreter *Interpreter) doAddition(tree *parser.Token) (*BeccaValue, error) {
+func (interpreter *Interpreter) doAddition(tree *parser.Token) (*OtterValue, error) {
 	leftValue, rightValue, err := resolveBinaryOperands(interpreter, tree)
 	if err != nil {
 		return nil, err
@@ -188,7 +188,7 @@ func (interpreter *Interpreter) doAddition(tree *parser.Token) (*BeccaValue, err
 	return nil, fmt.Errorf("typerror: incompatable types %v and %v with operator + at line %v, col %v", leftValue.Type, rightValue.Type, tree.Line, tree.Col)
 }
 
-func (interpreter *Interpreter) doSubtraction(tree *parser.Token) (*BeccaValue, error) {
+func (interpreter *Interpreter) doSubtraction(tree *parser.Token) (*OtterValue, error) {
 	leftValue, rightValue, err := resolveBinaryOperands(interpreter, tree)
 	if err != nil {
 		return nil, err
@@ -207,7 +207,7 @@ func (interpreter *Interpreter) doSubtraction(tree *parser.Token) (*BeccaValue, 
 	return nil, fmt.Errorf("typerror: incompatable types %v and %v with operator - at line %v, col %v", leftValue.Type, rightValue.Type, tree.Line, tree.Col)
 }
 
-func (interpreter *Interpreter) doMultiplication(tree *parser.Token) (*BeccaValue, error) {
+func (interpreter *Interpreter) doMultiplication(tree *parser.Token) (*OtterValue, error) {
 	leftValue, rightValue, err := resolveBinaryOperands(interpreter, tree)
 	if err != nil {
 		return nil, err
@@ -226,7 +226,7 @@ func (interpreter *Interpreter) doMultiplication(tree *parser.Token) (*BeccaValu
 	return nil, fmt.Errorf("typerror: incompatable types %v and %v with operator * at line %v, col %v", leftValue.Type, rightValue.Type, tree.Line, tree.Col)
 }
 
-func (interpreter *Interpreter) doDivision(tree *parser.Token) (*BeccaValue, error) {
+func (interpreter *Interpreter) doDivision(tree *parser.Token) (*OtterValue, error) {
 	leftValue, rightValue, err := resolveBinaryOperands(interpreter, tree)
 	if err != nil {
 		return nil, err
@@ -251,7 +251,7 @@ func (interpreter *Interpreter) doDivision(tree *parser.Token) (*BeccaValue, err
 	return nil, fmt.Errorf("typerror: incompatable types %v and %v with operator / at line %v, col %v", leftValue.Type, rightValue.Type, tree.Line, tree.Col)
 }
 
-func (interpreter *Interpreter) doModulo(tree *parser.Token) (*BeccaValue, error) {
+func (interpreter *Interpreter) doModulo(tree *parser.Token) (*OtterValue, error) {
 	leftValue, rightValue, err := resolveBinaryOperands(interpreter, tree)
 	if err != nil {
 		return nil, err

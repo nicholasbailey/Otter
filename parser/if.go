@@ -1,6 +1,6 @@
 package parser
 
-import "github.com/nicholasbailey/becca/exception"
+import "github.com/nicholasbailey/otter/exception"
 
 // Contains parser logic for if statements
 

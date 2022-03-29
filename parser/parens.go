@@ -3,7 +3,7 @@ package parser
 import (
 	"fmt"
 
-	"github.com/nicholasbailey/becca/exception"
+	"github.com/nicholasbailey/otter/exception"
 )
 
 func (spec *LanguageSpecification) DefineParens(openParens Symbol, closeParens Symbol) {

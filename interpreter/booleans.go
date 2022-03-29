@@ -1,28 +1,28 @@
 package interpreter
 
-import "github.com/nicholasbailey/becca/exception"
+import "github.com/nicholasbailey/otter/exception"
 
-func (interpreter *Interpreter) NewBool(x bool) *BeccaValue {
-	return &BeccaValue{
+func (interpreter *Interpreter) NewBool(x bool) *OtterValue {
+	return &OtterValue{
 		Type:  interpreter.MustResolveType(TBool),
 		Value: x,
 	}
 }
 
-func (interpreter *Interpreter) False() *BeccaValue {
+func (interpreter *Interpreter) False() *OtterValue {
 	return interpreter.NewBool(false)
 }
 
-func (interpreter *Interpreter) True() *BeccaValue {
+func (interpreter *Interpreter) True() *OtterValue {
 	return interpreter.NewBool(true)
 }
 
-func ConstructBool(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+func ConstructBool(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception) {
 	v := values[0]
 	return interpreter.Truthiness(v), nil
 }
 
-func (interpreter *Interpreter) Truthiness(value *BeccaValue) *BeccaValue {
+func (interpreter *Interpreter) Truthiness(value *OtterValue) *OtterValue {
 	switch value.Type.Value {
 	case TBool:
 		return value

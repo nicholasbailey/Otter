@@ -1,13 +1,13 @@
 package interpreter
 
-import "github.com/nicholasbailey/becca/exception"
+import "github.com/nicholasbailey/otter/exception"
 
-func ConstructNull(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+func ConstructNull(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception) {
 	return interpreter.NewNull(), nil
 }
 
-func (interpreter *Interpreter) NewNull() *BeccaValue {
-	return &BeccaValue{
+func (interpreter *Interpreter) NewNull() *OtterValue {
+	return &OtterValue{
 		Type:  interpreter.MustResolveType(TNull),
 		Value: nil,
 	}

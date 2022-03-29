@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/nicholasbailey/becca/exception"
+	"github.com/nicholasbailey/otter/exception"
 )
 
-func ConstructInt(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+func ConstructInt(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception) {
 	v := values[0]
 	if v.IsInstanceOf(TInt) {
 		return v, nil
@@ -23,8 +23,8 @@ func ConstructInt(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, 
 	}
 }
 
-func (interpreter *Interpreter) NewInt(i int64) *BeccaValue {
-	return &BeccaValue{
+func (interpreter *Interpreter) NewInt(i int64) *OtterValue {
+	return &OtterValue{
 		Type:     interpreter.MustResolveType(TInt),
 		Value:    i,
 		Callable: nil,

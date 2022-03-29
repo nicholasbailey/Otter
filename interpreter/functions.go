@@ -3,13 +3,13 @@ package interpreter
 import (
 	"fmt"
 
-	"github.com/nicholasbailey/becca/exception"
-	"github.com/nicholasbailey/becca/parser"
+	"github.com/nicholasbailey/otter/exception"
+	"github.com/nicholasbailey/otter/parser"
 )
 
 const Variadic = -1
 
-func ConstructFunction(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+func ConstructFunction(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception) {
 	return nil, exception.New(exception.NameError, "function is not callable", 0, 0)
 }
 
@@ -23,7 +23,7 @@ func ValidateFunctionDefinition(tree *parser.Token) exception.Exception {
 	return nil
 }
 
-func (interpreter *Interpreter) NewBuiltInFunction(name string, arity int, builtIn BuiltInFunction) (*BeccaValue, exception.Exception) {
+func (interpreter *Interpreter) NewBuiltInFunction(name string, arity int, builtIn BuiltInFunction) (*OtterValue, exception.Exception) {
 	// TODO - santize inputs
 	callable := &Callable{
 		Name:                name,
@@ -31,7 +31,7 @@ func (interpreter *Interpreter) NewBuiltInFunction(name string, arity int, built
 		BuiltInFunction:     builtIn,
 		UserDefinedFunction: nil,
 	}
-	return &BeccaValue{
+	return &OtterValue{
 		Type:     interpreter.MustResolveType(TFunction),
 		Value:    nil,
 		Callable: callable,
@@ -48,7 +48,7 @@ func NewBuiltInConstructor(typeName TypeName, arity int, builtIn BuiltInFunction
 	}
 }
 
-func (interpreter *Interpreter) NewUserDefinedFunction(tree *parser.Token) (*BeccaValue, exception.Exception) {
+func (interpreter *Interpreter) NewUserDefinedFunction(tree *parser.Token) (*OtterValue, exception.Exception) {
 	err := ValidateFunctionDefinition(tree)
 	if err != nil {
 		return nil, err
@@ -63,7 +63,7 @@ func (interpreter *Interpreter) NewUserDefinedFunction(tree *parser.Token) (*Bec
 		Name:                functionName,
 	}
 
-	return &BeccaValue{
+	return &OtterValue{
 		Type:     interpreter.MustResolveType(TFunction),
 		Value:    nil, // TODO - figure out what this should be
 		Callable: callable,
@@ -71,12 +71,12 @@ func (interpreter *Interpreter) NewUserDefinedFunction(tree *parser.Token) (*Bec
 }
 
 // Tests if two objects of type 'function' are equal
-func areFunctionsEqual(left *BeccaValue, right *BeccaValue) bool {
+func areFunctionsEqual(left *OtterValue, right *OtterValue) bool {
 	// TODO - this is not safe long term
 	return left.Callable.Name == right.Callable.Name
 }
 
-func (interpreter *Interpreter) defineFunction(tree *parser.Token) (*BeccaValue, error) {
+func (interpreter *Interpreter) defineFunction(tree *parser.Token) (*OtterValue, error) {
 
 	udf, err := interpreter.NewUserDefinedFunction(tree)
 	if err != nil {
@@ -90,7 +90,7 @@ func (interpreter *Interpreter) defineFunction(tree *parser.Token) (*BeccaValue,
 	return udf, nil
 }
 
-func (interpreter *Interpreter) invokeCallable(callable *Callable, arguments []*BeccaValue, line int, col int) (*BeccaValue, exception.Exception) {
+func (interpreter *Interpreter) invokeCallable(callable *Callable, arguments []*OtterValue, line int, col int) (*OtterValue, exception.Exception) {
 	arity := callable.Arity
 	if arity != Variadic && len(arguments) != arity {
 		return nil, exception.New(exception.TypeError, fmt.Sprintf("%v takes exactly %v arguments, found %v", callable.Name, callable.Arity, len(arguments)), line, col)
@@ -135,7 +135,7 @@ func (interpreter *Interpreter) invokeCallable(callable *Callable, arguments []*
 }
 
 // Should probably not be called call function, as it is also the syntax for other calls
-func (interpreter *Interpreter) callFunction(tree *parser.Token) (*BeccaValue, exception.Exception) {
+func (interpreter *Interpreter) callFunction(tree *parser.Token) (*OtterValue, exception.Exception) {
 	// TODO - check inputs
 	functionName := tree.Children[0]
 	functionValue, err := interpreter.resolveName(functionName)
@@ -148,7 +148,7 @@ func (interpreter *Interpreter) callFunction(tree *parser.Token) (*BeccaValue, e
 	}
 
 	// TODO - optimize memory allocation here
-	arguments := []*BeccaValue{}
+	arguments := []*OtterValue{}
 	for _, childToken := range tree.Children[1:] {
 		childValue, err := interpreter.Evaluate(childToken)
 		if err != nil {

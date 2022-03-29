@@ -1,6 +1,6 @@
 package parser
 
-import "github.com/nicholasbailey/becca/exception"
+import "github.com/nicholasbailey/otter/exception"
 
 func (spec *LanguageSpecification) DefineAccess(accessSymbol Symbol) {
 	dotLed := func(token *Token, parser *TDOPParser, left *Token) (*Token, exception.Exception) {

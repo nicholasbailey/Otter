@@ -3,10 +3,10 @@ package interpreter
 import (
 	"fmt"
 
-	"github.com/nicholasbailey/becca/exception"
+	"github.com/nicholasbailey/otter/exception"
 )
 
-func ConstructFloat(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+func ConstructFloat(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception) {
 	v := values[0]
 	if v.IsInstanceOf(TFloat) {
 		return v, nil
@@ -16,8 +16,8 @@ func ConstructFloat(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue
 	}
 }
 
-func (interpreter *Interpreter) NewFloat(f float64) *BeccaValue {
-	return &BeccaValue{
+func (interpreter *Interpreter) NewFloat(f float64) *OtterValue {
+	return &OtterValue{
 		Type:  interpreter.MustResolveType(TFloat),
 		Value: f,
 	}

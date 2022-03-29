@@ -3,11 +3,11 @@ package interpreter
 import (
 	"fmt"
 
-	"github.com/nicholasbailey/becca/exception"
-	"github.com/nicholasbailey/becca/parser"
+	"github.com/nicholasbailey/otter/exception"
+	"github.com/nicholasbailey/otter/parser"
 )
 
-func (intepreter *Interpreter) resolveName(name *parser.Token) (*BeccaValue, exception.Exception) {
+func (intepreter *Interpreter) resolveName(name *parser.Token) (*OtterValue, exception.Exception) {
 	val, found := intepreter.CallStack.ResolveVariable(name.Value)
 	if found {
 		return val, nil

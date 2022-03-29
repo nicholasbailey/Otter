@@ -1,18 +1,24 @@
 package interpreter
 
 import (
-	"github.com/nicholasbailey/becca/exception"
-	"github.com/nicholasbailey/becca/parser"
+	"fmt"
+
+	"github.com/nicholasbailey/otter/exception"
+	"github.com/nicholasbailey/otter/parser"
 )
 
-type BeccaValue struct {
-	Type     *BeccaValue
+type OtterValue struct {
+	Type     *OtterValue
 	Value    interface{}
 	Callable *Callable
 	Methods  map[string]*Callable
 }
 
-type BuiltInFunction func(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception)
+func (v *OtterValue) String() string {
+	return fmt.Sprintf("%v", v.Value)
+}
+
+type BuiltInFunction func(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception)
 
 type Callable struct {
 	Name                string
@@ -21,7 +27,7 @@ type Callable struct {
 	BuiltInFunction     BuiltInFunction
 }
 
-func (left *BeccaValue) isEqualTo(right *BeccaValue) bool {
+func (left *OtterValue) isEqualTo(right *OtterValue) bool {
 	if left.Type.Value != right.Type.Value {
 		return false
 	}

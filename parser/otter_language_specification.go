@@ -1,6 +1,6 @@
 package parser
 
-func NewBeccaLanguage() *LanguageSpecification {
+func NewOtterLanguage() *LanguageSpecification {
 
 	spec := NewLanguage()
 

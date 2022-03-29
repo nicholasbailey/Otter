@@ -3,10 +3,10 @@ package parser
 import (
 	"io"
 
-	"github.com/nicholasbailey/becca/exception"
+	"github.com/nicholasbailey/otter/exception"
 )
 
-// A Parser is an object that generates a Becca abstract
+// A Parser is an object that generates a Otter abstract
 // syntax tree from a io.Reader stream of source code.
 // It exposes a single method, Statements which converts
 // the entire source stream into a slice of ASTs representing
@@ -17,31 +17,31 @@ type Parser interface {
 	Statements() ([]*Token, exception.Exception)
 }
 
-type BeccaParser struct {
+type OtterParser struct {
 	BaseParser  Parser
 	Unsweetener Unsweetener
 }
 
 func NewParser(source io.Reader) Parser {
-	language := NewBeccaLanguage()
+	language := NewOtterLanguage()
 	lexer := NewLexer(source, language)
 	baseParser := NewTDOPParser(lexer)
 	unsweetener := NewUnsweetener()
 
-	return &BeccaParser{
+	return &OtterParser{
 		BaseParser:  baseParser,
 		Unsweetener: unsweetener,
 	}
 }
 
-func (beccaParser *BeccaParser) Statements() ([]*Token, exception.Exception) {
-	statements, err := beccaParser.BaseParser.Statements()
+func (otterParser *OtterParser) Statements() ([]*Token, exception.Exception) {
+	statements, err := otterParser.BaseParser.Statements()
 	if err != nil {
 		return nil, err
 	}
 	newStatements := []*Token{}
 	for _, statement := range statements {
-		unsweetened, err := beccaParser.Unsweetener.Unsweeten(statement)
+		unsweetened, err := otterParser.Unsweetener.Unsweeten(statement)
 		if err != nil {
 			return nil, err
 		}

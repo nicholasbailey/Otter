@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/nicholasbailey/becca/exception"
+	"github.com/nicholasbailey/otter/exception"
 )
 
 // Represents the 'type' of a token. Symbols determine

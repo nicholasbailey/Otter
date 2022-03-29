@@ -3,10 +3,10 @@ package parser
 import (
 	"fmt"
 
-	"github.com/nicholasbailey/becca/exception"
+	"github.com/nicholasbailey/otter/exception"
 )
 
-// A TDOPParser is the core parser implentation for the Becca language
+// A TDOPParser is the core parser implentation for the Otter language
 // it uses Top-Down Operator Precedence Parsing to obtain a sequence
 // of statement values.
 type TDOPParser struct {

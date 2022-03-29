@@ -3,8 +3,8 @@ package interpreter
 import (
 	"io"
 
-	"github.com/nicholasbailey/becca/exception"
-	"github.com/nicholasbailey/becca/parser"
+	"github.com/nicholasbailey/otter/exception"
+	"github.com/nicholasbailey/otter/parser"
 )
 
 func NewEngine() *Engine {
@@ -23,7 +23,7 @@ type Engine struct {
 	Interpreter   Interpreter
 }
 
-func (engine *Engine) Execute(source io.Reader) (*BeccaValue, exception.Exception) {
+func (engine *Engine) Execute(source io.Reader) (*OtterValue, exception.Exception) {
 	parser := engine.ParserFactory(source)
 	trees, err := parser.Statements()
 	if err != nil {

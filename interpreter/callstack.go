@@ -3,13 +3,13 @@ package interpreter
 import (
 	"container/list"
 
-	"github.com/nicholasbailey/becca/exception"
+	"github.com/nicholasbailey/otter/exception"
 )
 
 type CallStackFrame struct {
 	Scope        Scope
 	FunctionName string
-	ReturnValue  *BeccaValue
+	ReturnValue  *OtterValue
 	Exception    *exception.Exception
 }
 
@@ -61,7 +61,7 @@ func (s *CallStack) Peek() *CallStackFrame {
 	return back.Value.(*CallStackFrame)
 }
 
-func (s *CallStack) ResolveVariable(variableName string) (*BeccaValue, bool) {
+func (s *CallStack) ResolveVariable(variableName string) (*OtterValue, bool) {
 
 	for e := s.list.Back(); e != nil; e = e.Prev() {
 		stackFrame := e.Value.(*CallStackFrame)
@@ -73,7 +73,7 @@ func (s *CallStack) ResolveVariable(variableName string) (*BeccaValue, bool) {
 	return nil, false
 }
 
-func (s *CallStack) AssignVariable(variableName string, value *BeccaValue) error {
+func (s *CallStack) AssignVariable(variableName string, value *OtterValue) error {
 	s.Peek().Scope[variableName] = value
 	return nil
 }

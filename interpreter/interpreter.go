@@ -4,24 +4,24 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/nicholasbailey/becca/exception"
-	"github.com/nicholasbailey/becca/parser"
+	"github.com/nicholasbailey/otter/exception"
+	"github.com/nicholasbailey/otter/parser"
 )
 
 // TODO - There are a lot of magic strings here
 
-type Scope map[string]*BeccaValue
+type Scope map[string]*OtterValue
 
 func NewScope() Scope {
-	return map[string]*BeccaValue{}
+	return map[string]*OtterValue{}
 }
 
 type Interpreter struct {
 	CallStack CallStack
 }
 
-func (interpreter *Interpreter) Execute(statements []*parser.Token) (*BeccaValue, exception.Exception) {
-	var value *BeccaValue
+func (interpreter *Interpreter) Execute(statements []*parser.Token) (*OtterValue, exception.Exception) {
+	var value *OtterValue
 	var err error = nil
 	for _, statement := range statements {
 
@@ -33,7 +33,7 @@ func (interpreter *Interpreter) Execute(statements []*parser.Token) (*BeccaValue
 	return value, nil
 }
 
-func (interpreter *Interpreter) Evaluate(tree *parser.Token) (*BeccaValue, exception.Exception) {
+func (interpreter *Interpreter) Evaluate(tree *parser.Token) (*OtterValue, exception.Exception) {
 	switch tree.Symbol {
 	case parser.StringLiteral:
 		return interpreter.NewString(tree.Value), nil
@@ -96,7 +96,7 @@ func (interpreter *Interpreter) Evaluate(tree *parser.Token) (*BeccaValue, excep
 	case parser.FunctionInvocation:
 		return interpreter.callFunction(tree)
 	case parser.Block:
-		var result *BeccaValue
+		var result *OtterValue
 		var err exception.Exception
 		for _, child := range tree.Children {
 			result, err = interpreter.Evaluate(child)
@@ -127,7 +127,7 @@ func (interpreter *Interpreter) Evaluate(tree *parser.Token) (*BeccaValue, excep
 	return nil, fmt.Errorf("syntaxerror: unrecognized symbol '%v' at line %v, col %v", tree.Value, tree.Line, tree.Col)
 }
 
-func (interpreter *Interpreter) DefineGlobal(name string, value *BeccaValue) {
+func (interpreter *Interpreter) DefineGlobal(name string, value *OtterValue) {
 	interpreter.CallStack.Globals().Scope[name] = value
 }
 

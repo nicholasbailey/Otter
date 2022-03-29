@@ -3,40 +3,40 @@ package interpreter
 import (
 	"fmt"
 
-	"github.com/nicholasbailey/becca/exception"
+	"github.com/nicholasbailey/otter/exception"
 )
 
-func ConstructArray(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
-	newSlice := make([]*BeccaValue, len(values))
+func ConstructArray(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception) {
+	newSlice := make([]*OtterValue, len(values))
 	copy(newSlice, values)
-	return &BeccaValue{
+	return &OtterValue{
 		Type:  interpreter.MustResolveType(TArray),
 		Value: newSlice,
 	}, nil
 }
 
-func ArrayLength(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+func ArrayLength(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception) {
 	array := values[0]
-	underlyingSlice := array.Value.([]*BeccaValue)
+	underlyingSlice := array.Value.([]*OtterValue)
 	length := len(underlyingSlice)
 	return interpreter.NewInt(int64(length)), nil
 }
 
-func ArrayAdd(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+func ArrayAdd(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception) {
 	array := values[0]
-	underlyingSlice := array.Value.([]*BeccaValue)
+	underlyingSlice := array.Value.([]*OtterValue)
 	underlyingSlice = append(underlyingSlice, values[1:]...)
 	array.Value = underlyingSlice
 	return interpreter.NewNull(), nil
 }
 
-func ArrayGetItem(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+func ArrayGetItem(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception) {
 	array := values[0]
 	index := values[1]
 	if !index.IsInstanceOf(TInt) {
 		return nil, exception.New(exception.ArgumentError, fmt.Sprintf("Array Index must be int, got %v", index.Type.Value), 0, 0)
 	}
-	underlyingSlice := array.Value.([]*BeccaValue)
+	underlyingSlice := array.Value.([]*OtterValue)
 	indexValue := index.Value.(int64)
 
 	if indexValue < 0 || len(underlyingSlice) < int(indexValue) {

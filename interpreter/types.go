@@ -1,6 +1,6 @@
 package interpreter
 
-import "github.com/nicholasbailey/becca/exception"
+import "github.com/nicholasbailey/otter/exception"
 
 type TypeName string
 
@@ -16,18 +16,18 @@ const (
 	TStringIterator TypeName = "StringIterator"
 )
 
-func ConstructType(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+func ConstructType(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception) {
 	v := values[0]
 	return v.Type, nil
 }
 
-func (interpreter *Interpreter) ResolveType(typeName TypeName) (*BeccaValue, exception.Exception) {
+func (interpreter *Interpreter) ResolveType(typeName TypeName) (*OtterValue, exception.Exception) {
 	val, _ := interpreter.CallStack.ResolveVariable(string(typeName))
 	// TODO - error handling and make this more efficient
 	return val, nil
 }
 
-func (interpreter *Interpreter) MustResolveType(typeName TypeName) *BeccaValue {
+func (interpreter *Interpreter) MustResolveType(typeName TypeName) *OtterValue {
 	val, err := interpreter.ResolveType(typeName)
 	if err != nil {
 		panic(err)
@@ -35,8 +35,8 @@ func (interpreter *Interpreter) MustResolveType(typeName TypeName) *BeccaValue {
 	return val
 }
 
-func (interpreter *Interpreter) DefineType(t TypeName, constructor *Callable) (*BeccaValue, exception.Exception) {
-	value := &BeccaValue{
+func (interpreter *Interpreter) DefineType(t TypeName, constructor *Callable) (*OtterValue, exception.Exception) {
+	value := &OtterValue{
 		Type:     interpreter.MustResolveType(TType),
 		Value:    t,
 		Callable: constructor,
@@ -49,12 +49,12 @@ func (interpreter *Interpreter) DefineType(t TypeName, constructor *Callable) (*
 	return value, err
 }
 
-func (value *BeccaValue) IsInstanceOf(typeName TypeName) bool {
+func (value *OtterValue) IsInstanceOf(typeName TypeName) bool {
 	return value.Type.Value == typeName
 }
 
 // Tests if two objects of type 'type' are equal
-func areTypesEqual(left *BeccaValue, right *BeccaValue) bool {
+func areTypesEqual(left *OtterValue, right *OtterValue) bool {
 	// TODO - this is not safe long term
 	return left.Value == right.Value
 }
@@ -68,7 +68,7 @@ func DefineTypeType(interpreter *Interpreter) {
 	}
 
 	// Boostrap the type type
-	typeVal := BeccaValue{
+	typeVal := OtterValue{
 		Value:    TType,
 		Callable: typeConstructor,
 	}

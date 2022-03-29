@@ -1,6 +1,6 @@
 package parser
 
-import "github.com/nicholasbailey/becca/exception"
+import "github.com/nicholasbailey/otter/exception"
 
 // An Unsweeter takes a AST and removes the 'Syntactic Sugar' by transpiling
 // rich ASTs to a simpler set of operations

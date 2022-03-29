@@ -3,7 +3,7 @@ package parser
 import (
 	"unicode"
 
-	"github.com/nicholasbailey/becca/exception"
+	"github.com/nicholasbailey/otter/exception"
 )
 
 // TODO: this needs a good bit of refactoring

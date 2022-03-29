@@ -1,11 +1,11 @@
 package interpreter
 
 import (
-	"github.com/nicholasbailey/becca/exception"
-	"github.com/nicholasbailey/becca/parser"
+	"github.com/nicholasbailey/otter/exception"
+	"github.com/nicholasbailey/otter/parser"
 )
 
-func (interpreter *Interpreter) doIf(tree *parser.Token) (*BeccaValue, error) {
+func (interpreter *Interpreter) doIf(tree *parser.Token) (*OtterValue, error) {
 	if len(tree.Children) < 2 {
 		exception.New(exception.SyntaxError, "invalid if expression", tree.Line, tree.Col)
 	}

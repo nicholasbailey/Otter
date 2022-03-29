@@ -3,10 +3,10 @@ package interpreter
 import (
 	"fmt"
 
-	"github.com/nicholasbailey/becca/exception"
+	"github.com/nicholasbailey/otter/exception"
 )
 
-func Print(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+func Print(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception) {
 	for _, value := range values {
 		switch value.Type.Value {
 		case TString:
@@ -27,17 +27,17 @@ func Print(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, excepti
 	return interpreter.NewNull(), nil
 }
 
-func AssertEqual(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+func AssertEqual(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception) {
 	left := values[0]
 	right := values[1]
 	if left.isEqualTo(right) {
 		return interpreter.NewNull(), nil
 	}
-	leftAsString, err := ConstructString(interpreter, []*BeccaValue{left})
+	leftAsString, err := ConstructString(interpreter, []*OtterValue{left})
 	if err != nil {
 		return nil, err
 	}
-	rightAsString, err := ConstructString(interpreter, []*BeccaValue{right})
+	rightAsString, err := ConstructString(interpreter, []*OtterValue{right})
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func AssertEqual(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, e
 	return nil, exception.New(exception.AssertionError, errorMessage, 0, 0)
 }
 
-func AssertTrue(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+func AssertTrue(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception) {
 	val := values[0]
 	if val.Type.Value == TBool && val.Value == true {
 		return interpreter.NewNull(), nil

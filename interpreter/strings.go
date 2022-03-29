@@ -4,10 +4,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/nicholasbailey/becca/exception"
+	"github.com/nicholasbailey/otter/exception"
 )
 
-func ConstructString(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+func ConstructString(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception) {
 	if len(values) != 1 {
 		// TODO - get call stack info for builtins
 		return nil, exception.New(exception.ArgumentError, "", 0, 0)
@@ -35,20 +35,20 @@ func ConstructString(interpreter *Interpreter, values []*BeccaValue) (*BeccaValu
 	default:
 		strVal = "[Object]"
 	}
-	return &BeccaValue{
+	return &OtterValue{
 		Type:  interpreter.MustResolveType(TString),
 		Value: strVal,
 	}, nil
 }
 
-func (interpreter *Interpreter) NewString(s string) *BeccaValue {
-	return &BeccaValue{
+func (interpreter *Interpreter) NewString(s string) *OtterValue {
+	return &OtterValue{
 		Type:  interpreter.MustResolveType(TString),
 		Value: s,
 	}
 }
 
-func StringLength(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+func StringLength(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception) {
 	// TODO - error handling
 	v := values[0]
 	s := v.Value.(string)
@@ -56,21 +56,21 @@ func StringLength(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, 
 	return interpreter.NewInt(length), nil
 }
 
-func StringToUpperCase(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+func StringToUpperCase(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception) {
 	v := values[0]
 	s := v.Value.(string)
 	newVal := strings.ToUpper(s)
 	return interpreter.NewString(newVal), nil
 }
 
-func StringToLowerCase(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+func StringToLowerCase(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception) {
 	v := values[0]
 	s := v.Value.(string)
 	newVal := strings.ToLower(s)
 	return interpreter.NewString(newVal), nil
 }
 
-func StringReplace(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+func StringReplace(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception) {
 	base := values[0]
 	target := values[1]
 	replacement := values[2]
@@ -83,7 +83,7 @@ func StringReplace(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue,
 	return interpreter.NewString(newStr), nil
 }
 
-func StringIterator(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+func StringIterator(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception) {
 	return ConstructStringIterator(interpreter, values)
 }
 
@@ -92,7 +92,7 @@ type StringIteratorInternals struct {
 	Index  int
 }
 
-func ConstructStringIterator(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+func ConstructStringIterator(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception) {
 	if len(values) > 1 || len(values) == 0 {
 		// TODO - get call stack info for builtins
 		return nil, exception.New(exception.ArgumentError, "", 0, 0)
@@ -105,13 +105,13 @@ func ConstructStringIterator(interpreter *Interpreter, values []*BeccaValue) (*B
 		String: value.Value.(string),
 		Index:  0,
 	}
-	return &BeccaValue{
+	return &OtterValue{
 		Type:  interpreter.MustResolveType(TStringIterator),
 		Value: &iteratorValue,
 	}, nil
 }
 
-func StringIteratorHasNext(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+func StringIteratorHasNext(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception) {
 	iterator := values[0]
 	internals := iterator.Value.(*StringIteratorInternals)
 	if internals.Index >= len(internals.String) {
@@ -121,7 +121,7 @@ func StringIteratorHasNext(interpreter *Interpreter, values []*BeccaValue) (*Bec
 	}
 }
 
-func StringIteratorGetNext(interpreter *Interpreter, values []*BeccaValue) (*BeccaValue, exception.Exception) {
+func StringIteratorGetNext(interpreter *Interpreter, values []*OtterValue) (*OtterValue, exception.Exception) {
 	iterator := values[0]
 	internals := iterator.Value.(*StringIteratorInternals)
 	if internals.Index >= len(internals.String) {
